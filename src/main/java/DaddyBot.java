@@ -3,7 +3,7 @@ import java.util.*;
 public class DaddyBot {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        daddyIntro();
+        border("what can daddy do for you?\nbe sure to add 'please daddy' at the end of your input.\nif you're saying bye, say 'bye daddy'.");
         String input = scanner.nextLine();
         int magicWordCount = 0;
         ArrayList<Task> list = new ArrayList<Task>();
@@ -12,37 +12,25 @@ public class DaddyBot {
             if (daddyCheck(input)) {
                 if (!(input.substring(0, 4).equals("list") || input.substring(0, 4).equals("mark") || input.substring(0, 6).equals("unmark"))) {
                     list.add(new Task(daddyTask(input)));
-                    System.out.println("___________________________________________________________________\n");
-                    System.out.println("daddy added: " + daddyTask(input));
-                    System.out.println("___________________________________________________________________\n");
+                    border("daddy added: " + daddyTask(input));
                 } else if (input.substring(0, 4).equals("mark")) { 
                     int index = Integer.parseInt(daddyTask(input).substring(5).trim()) - 1;
                     if (index < 0 || index >= list.size()) {
-                        System.out.println("___________________________________________________________________\n");
-                        System.out.println("daddy could not find that task.");
-                        System.out.println("___________________________________________________________________\n");
+                        border("daddy could not find that task.");
                         input = scanner.nextLine();
                         continue;
                     }
                     list.get(index).mark();
-                    System.out.println("___________________________________________________________________\n");
-                    System.out.println("daddy is proud of you:");
-                    System.out.println(list.get(index).getStatusIcon() + " " + list.get(index).getDesc());
-                    System.out.println("___________________________________________________________________\n");
+                    border("daddy is proud of you!\n" + list.get(index).getStatusIcon() + " " + list.get(index).getDesc());
                 } else if (input.substring(0, 6).equals("unmark")) {
                     int index = Integer.parseInt(daddyTask(input).substring(7).trim()) - 1;
                     if (index < 0 || index >= list.size()) {
-                        System.out.println("___________________________________________________________________\n");
-                        System.out.println("daddy could not find that task.");
-                        System.out.println("___________________________________________________________________\n");
+                        border("daddy could not find that task.");
                         input = scanner.nextLine();
                         continue;
                     }
                     list.get(index).unmark();
-                    System.out.println("___________________________________________________________________\n");
-                    System.out.println("daddy is disappointed...");
-                    System.out.println(list.get(index).getStatusIcon() + " " + list.get(index).getDesc());
-                    System.out.println("___________________________________________________________________\n");
+                    border("daddy is disappointed...\n" + list.get(index).getStatusIcon() + " " + list.get(index).getDesc());
                 } else {
                     System.out.println("___________________________________________________________________\n");
                     int n = list.size();
@@ -60,21 +48,13 @@ public class DaddyBot {
             }
             input = scanner.nextLine();
         }
-        daddyBye();
+        border("daddy's gonna go now...");
         scanner.close();
     }
 
-    public static void daddyIntro() {
+    public static void border(String message) {
         System.out.println("___________________________________________________________________\n");
-        System.out.println("what can daddy do for you?");
-        System.out.println("be sure to add 'please daddy' at the end of your input.");
-        System.out.println("if you're saying bye, say 'bye daddy'.");
-        System.out.println("___________________________________________________________________\n");
-    }
-
-    public static void daddyBye() {
-        System.out.println("___________________________________________________________________\n");
-        System.out.println("daddy's gonna go now...");
+        System.out.println(message);
         System.out.println("___________________________________________________________________\n");
     }
 
@@ -94,29 +74,19 @@ public class DaddyBot {
     public static void noMagicWords(int num) {
         switch (num) {
             case 0:
-                System.out.println("___________________________________________________________________\n");
-                System.out.println("daddy won't do it unless you say 'please daddy'");
-                System.out.println("___________________________________________________________________\n");
+                border("daddy won't do it unless you say 'please daddy'");
                 break;
             case 1:
-                System.out.println("___________________________________________________________________\n");
-                System.out.println("what are the magic words?");
-                System.out.println("___________________________________________________________________\n");
+                border("what are the magic words?");
                 break;
             case 2:
-                System.out.println("___________________________________________________________________\n");
-                System.out.println("are you forgetting something?"); 
-                System.out.println("___________________________________________________________________\n");           
+                border("are you forgetting something?"); 
                 break;
             case 3:
-                System.out.println("___________________________________________________________________\n");
-                System.out.println("if you continue being naughty, daddy will punish you.");
-                System.out.println("___________________________________________________________________\n");
+                border("if you continue being naughty, daddy will punish you.");
                 break;
             case 4:
-                System.out.println("___________________________________________________________________\n");
-                System.out.println("daddy's getting angry... one more time and daddy is going to leave.");
-                System.out.println("___________________________________________________________________\n");
+                border("daddy's getting angry... one more time and daddy is going to leave.");
                 break;
         }
     }
