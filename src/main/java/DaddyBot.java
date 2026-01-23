@@ -6,11 +6,23 @@ public class DaddyBot {
         daddyIntro();
         String input = scanner.nextLine();
         int count = 0;
+        ArrayList<String> list = new ArrayList<String>();
         while (!input.equals("bye daddy")) {
             if (daddyCheck(input)) {
-                System.out.println("___________________________________________________________________\n");
-                System.out.println(input.substring(0, input.length() - 12));
-                System.out.println("___________________________________________________________________\n");
+                if (!input.substring(0, input.length() - 12).equals("list ")){
+                    list.add(input.substring(0, input.length() - 12));
+                    System.out.println("___________________________________________________________________\n");
+                    System.out.println("daddy added: " + input.substring(0, input.length() - 12));
+                    System.out.println("___________________________________________________________________\n");
+                } else {
+                    System.out.println("___________________________________________________________________\n");
+                    int listCount = 0;
+                    int n = list.size();
+                    while (listCount++ < n) {
+                        System.out.println(listCount + ". " + list.get(listCount - 1));
+                    }
+                    System.out.println("___________________________________________________________________\n");
+                }
             } else {
                 noMagicWords(count);
                 count++;
@@ -27,7 +39,7 @@ public class DaddyBot {
     public static void daddyIntro() {
         System.out.println("___________________________________________________________________\n");
         System.out.println("what can daddy do for you?");
-        System.out.println("be sure to add 'please daddy' at the end of your input");
+        System.out.println("be sure to add 'please daddy' at the end of your input.");
         System.out.println("if you're saying bye, say 'bye daddy'.");
         System.out.println("___________________________________________________________________\n");
     }
