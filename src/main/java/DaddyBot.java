@@ -4,40 +4,66 @@ public class DaddyBot {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         border("what can daddy do for you?\nbe sure to add 'please daddy' at the end of your input.\nif you're saying bye, say 'bye daddy'.");
-        String input = scanner.nextLine();
+        String input = scanner.nextLine().toLowerCase();
         int magicWordCount = 0;
         ArrayList<Task> list = new ArrayList<Task>();
         while (!input.equals("bye daddy")) {
             int listCount = 0;
+            int index = -1;
             if (daddyCheck(input)) {
-                if (!(input.substring(0, 4).equals("list") || input.substring(0, 4).equals("mark") || input.substring(0, 6).equals("unmark"))) {
-                    list.add(new Task(daddyTask(input)));
-                    border("daddy added: " + daddyTask(input));
-                } else if (input.substring(0, 4).equals("mark")) { 
-                    int index = Integer.parseInt(daddyTask(input).substring(5).trim()) - 1;
-                    if (index < 0 || index >= list.size()) {
-                        border("daddy could not find that task.");
-                        input = scanner.nextLine();
-                        continue;
-                    }
-                    list.get(index).mark();
-                    border("daddy is proud of you!\n" + list.get(index).getStatusIcon() + " " + list.get(index).getDesc());
-                } else if (input.substring(0, 6).equals("unmark")) {
-                    int index = Integer.parseInt(daddyTask(input).substring(7).trim()) - 1;
-                    if (index < 0 || index >= list.size()) {
-                        border("daddy could not find that task.");
-                        input = scanner.nextLine();
-                        continue;
-                    }
-                    list.get(index).unmark();
-                    border("daddy is disappointed...\n" + list.get(index).getStatusIcon() + " " + list.get(index).getDesc());
-                } else {
-                    System.out.println("___________________________________________________________________\n");
-                    int n = list.size();
-                    while (listCount++ < n) {
-                        System.out.println(listCount + "." + list.get(listCount - 1).getStatusIcon() + " " + list.get(listCount - 1).getDesc());
-                    }
-                    System.out.println("___________________________________________________________________\n");
+                switch (input.substring(0, input.indexOf(" "))) {
+                    case "todo":
+                        Todo todo = new Todo(daddyTask(input).substring(4).trim());
+                        list.add(todo);
+                        addTask(todo, list.size());
+                        break;
+                    case "deadline":
+                        int seperatorIndex = daddyTask(input).indexOf("/by ");
+                        Deadline deadline = new Deadline(daddyTask(input).substring(9, seperatorIndex).trim(), daddyTask(input).substring(seperatorIndex + 3).trim());
+                        list.add(deadline);
+                        addTask(deadline, list.size());
+                        break;
+                    case "event":
+                        int seperatorIndex1 = daddyTask(input).indexOf("/from ");
+                        int seperatorIndex2 = daddyTask(input).indexOf("/to ");
+                        Event event = new Event(daddyTask(input).substring(5, seperatorIndex1).trim(), daddyTask(input).substring(seperatorIndex1 + 5, seperatorIndex2).trim(), daddyTask(input).substring(seperatorIndex2 + 3).trim());
+                        list.add(event);
+                        addTask(event, list.size());
+                        break;
+                    case "list":
+                        System.out.println("___________________________________________________________________\n");
+                        int n = list.size();
+                        if (n == 0) {
+                            System.out.println("list is empty.");
+                        }
+                        while (listCount++ < n) {
+                            System.out.println(listCount + ". " + list.get(listCount - 1).toString());
+                        }
+                        System.out.println("___________________________________________________________________\n");
+                        break;
+                    case "mark":
+                        index = Integer.parseInt(daddyTask(input).substring(5).trim()) - 1;
+                        if (index < 0 || index >= list.size()) {
+                            border("daddy could not find that task.");
+                            input = scanner.nextLine();
+                            continue;
+                        }
+                        list.get(index).mark();
+                        border("daddy is proud of you!\n" + list.get(index).getStatusIcon() + " " + list.get(index).toString());
+                        break;
+                    case "unmark":
+                        index = Integer.parseInt(daddyTask(input).substring(7).trim()) - 1;
+                        if (index < 0 || index >= list.size()) {
+                            border("daddy could not find that task.");
+                            input = scanner.nextLine();
+                            continue;
+                        }
+                        list.get(index).unmark();
+                        border("daddy is disappointed...\n" + list.get(index).getStatusIcon() + " " + list.get(index).toString());
+                        break;
+                    default:
+                        border("daddy doesn't understand that command.");
+                        break;
                 }
             } else {
                 noMagicWords(magicWordCount);
@@ -60,7 +86,7 @@ public class DaddyBot {
 
     public static Boolean daddyCheck(String input) {
         if (input.length() > 12) {
-            if (input.substring(input.length() - 12).equals("please daddy")) {
+            if (input.substring(input.length() - 12).toLowerCase().equals("please daddy")) {
                 return true;
             }            
         }
@@ -90,6 +116,10 @@ public class DaddyBot {
                 break;
         }
     }
+
+    public static void addTask(Task task, int size) {
+        border("daddy added: " + task.toString() + "\ntotal tasks: " + size);
+    }
 }
 
 class Task {
@@ -115,5 +145,43 @@ class Task {
 
     public void unmark() {
         this.isDone = false;
+    }
+}
+
+class Deadline extends Task {
+    private String by;
+
+    public Deadline(String desc, String by) {
+        super(desc);
+        this.by = by;
+    }
+
+    public String toString() {
+        return "[D]" + super.getStatusIcon() + " " + super.getDesc() + " (by: " + by + ")";
+    }
+}
+
+class Todo extends Task {
+    public Todo(String desc) {
+        super(desc);
+    }
+
+    public String toString() {
+        return "[T]" + super.getStatusIcon() + " " + super.getDesc();
+    }
+}
+
+class Event extends Task {
+    private String from;
+    private String to;
+
+    public Event(String desc, String from, String to) {
+        super(desc);
+        this.from = from;
+        this.to = to;
+    }
+
+    public String toString() {
+        return "[E]" + super.getStatusIcon() + " " + super.getDesc() + " (from: " + from + " to: " + to + ")";
     }
 }
