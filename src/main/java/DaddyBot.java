@@ -90,6 +90,17 @@ public class DaddyBot {
                         list.get(index).unmark();
                         border("daddy is disappointed...\n" + list.get(index).getStatusIcon() + " " + list.get(index).toString());
                         break;
+                    case "delete":
+                        index = Integer.parseInt(daddyTask(input).substring(7).trim()) - 1;
+                        if (index < 0 || index >= list.size()) {
+                            border("daddy could not find that task.");
+                            input = scanner.nextLine();
+                            continue;
+                        }
+                        Task removedTask = list.get(index);
+                        list.remove(index);
+                        border("daddy removed: '" + removedTask.getDesc() + "'\ntotal tasks: " + list.size());
+                        break;
                     default:
                         border("daddy doesn't understand that command.");
                         break;
