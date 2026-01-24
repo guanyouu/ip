@@ -3,7 +3,11 @@ import java.util.*;
 public class DaddyBot {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        border("what can daddy do for you?\nbe sure to add 'please daddy' at the end of your input.\nif you're saying bye, say 'bye daddy'.");
+        border("daddy can add todo, deadline and event tasks.\n" 
+        + "todo: type todo <task>.\ndeadline: type deadline <task> /by <date>.\n"
+        + "event: type event <task> /from <date> /to <date>.\n"
+        + "be sure to add 'please daddy' at the end of your input.\n"
+        + "if you're saying bye, say 'bye daddy'.");
         String input = scanner.nextLine().toLowerCase();
         int magicWordCount = 0;
         ArrayList<Task> list = new ArrayList<Task>();
@@ -14,21 +18,46 @@ public class DaddyBot {
                 switch (input.substring(0, input.indexOf(" "))) {
                     case "todo":
                         Todo todo = new Todo(daddyTask(input).substring(4).trim());
-                        list.add(todo);
-                        addTask(todo, list.size());
+                        try {
+                            ifEmpty(todo, list);
+                        } catch (DaddyException e) {
+                            border(e.getMessage());
+                            input = scanner.nextLine();
+                            continue;
+                        }
                         break;
                     case "deadline":
                         int seperatorIndex = daddyTask(input).indexOf("/by ");
+                        if (seperatorIndex == -1) {
+                            border("daddy needs a /by to know the deadline.");
+                            input = scanner.nextLine();
+                            continue;
+                        }
                         Deadline deadline = new Deadline(daddyTask(input).substring(9, seperatorIndex).trim(), daddyTask(input).substring(seperatorIndex + 3).trim());
-                        list.add(deadline);
-                        addTask(deadline, list.size());
+                        try {
+                            ifEmpty(deadline, list);
+                        } catch (DaddyException e) {
+                            border(e.getMessage());
+                            input = scanner.nextLine();
+                            continue;
+                        }
                         break;
                     case "event":
                         int seperatorIndex1 = daddyTask(input).indexOf("/from ");
                         int seperatorIndex2 = daddyTask(input).indexOf("/to ");
+                        if (seperatorIndex1 == -1 || seperatorIndex2 == -1) {
+                            border("daddy needs both /from and /to to know the event time.");
+                            input = scanner.nextLine();
+                            continue;
+                        }
                         Event event = new Event(daddyTask(input).substring(5, seperatorIndex1).trim(), daddyTask(input).substring(seperatorIndex1 + 5, seperatorIndex2).trim(), daddyTask(input).substring(seperatorIndex2 + 3).trim());
-                        list.add(event);
-                        addTask(event, list.size());
+                        try {
+                            ifEmpty(event, list);
+                        } catch (DaddyException e) {
+                            border(e.getMessage());
+                            input = scanner.nextLine();
+                            continue;
+                        }
                         break;
                     case "list":
                         System.out.println("___________________________________________________________________\n");
@@ -120,6 +149,14 @@ public class DaddyBot {
     public static void addTask(Task task, int size) {
         border("daddy added: " + task.toString() + "\ntotal tasks: " + size);
     }
+
+    public static void ifEmpty(Task task, ArrayList<Task> list) throws DaddyException {
+        if (task.getDesc() == "") {
+            throw new DaddyException("daddy can't add an empty task.");
+        }
+        list.add(task);
+        addTask(task, list.size());
+    }
 }
 
 class Task {
@@ -183,5 +220,11 @@ class Event extends Task {
 
     public String toString() {
         return "[E]" + super.getStatusIcon() + " " + super.getDesc() + " (from: " + from + " to: " + to + ")";
+    }
+}
+
+class DaddyException extends Exception {
+    public DaddyException(String message) {
+        super(message);
     }
 }
