@@ -12,11 +12,7 @@ public class DaddyBot {
         String path = System.getProperty("user.dir");
         createDaddyListFile(path);
         Scanner scanner = new Scanner(System.in);
-        border("daddy can add todo, deadline and event tasks.\n" 
-        + "todo: type todo <task>.\ndeadline: type deadline <task> /by <YYYY-MM-DD>.\n"
-        + "event: type event <task> /from <YYYY-MM-DD> /to <YYYY-MM-DD>.\n"
-        + "be sure to add 'please daddy' at the end of your input.\n"
-        + "if you're saying bye, say 'bye daddy'.");
+        Ui ui = new Ui();
         String input = scanner.nextLine().toLowerCase();
         int magicWordCount = 0;
         ArrayList<Task> list = new ArrayList<Task>();
@@ -33,7 +29,7 @@ public class DaddyBot {
                             writeToFile(path + "/data/daddyslist.txt", todo);
 
                         } catch (DaddyException e) {
-                            border(e.getMessage());
+                            Ui.border(e.getMessage());
                             input = scanner.nextLine();
                             continue;
                         }
@@ -41,7 +37,7 @@ public class DaddyBot {
                     case "deadline":
                         int seperatorIndex = daddyTask(input).indexOf("/by ");
                         if (seperatorIndex == -1) {
-                            border("daddy needs a /by to know the deadline.");
+                            Ui.border("daddy needs a /by to know the deadline.");
                             input = scanner.nextLine();
                             continue;
                         }
@@ -51,7 +47,7 @@ public class DaddyBot {
                             ifEmpty(deadline, list);
                             writeToFile(path + "/data/daddyslist.txt", deadline);
                         } catch (DaddyException e) {
-                            border(e.getMessage());
+                            Ui.border(e.getMessage());
                             input = scanner.nextLine();
                             continue;
                         }
@@ -60,16 +56,18 @@ public class DaddyBot {
                         int seperatorIndex1 = daddyTask(input).indexOf("/from ");
                         int seperatorIndex2 = daddyTask(input).indexOf("/to ");
                         if (seperatorIndex1 == -1 || seperatorIndex2 == -1) {
-                            border("daddy needs both /from and /to to know the event time.");
+                            Ui.border("daddy needs both /from and /to to know the event time.");
                             input = scanner.nextLine();
                             continue;
                         }
-                        Event event = new Event(daddyTask(input).substring(5, seperatorIndex1).trim(), daddyTask(input).substring(seperatorIndex1 + 5, seperatorIndex2).trim(), daddyTask(input).substring(seperatorIndex2 + 3).trim());
+                        LocalDate fromDate = LocalDate.parse(daddyTask(input).substring(seperatorIndex1 + 5, seperatorIndex2).trim());
+                        LocalDate toDate = LocalDate.parse(daddyTask(input).substring(seperatorIndex2 + 3).trim());
+                        Event event = new Event(daddyTask(input).substring(5, seperatorIndex1).trim(), fromDate, toDate);
                         try {
                             ifEmpty(event, list);
                             writeToFile(path + "/data/daddyslist.txt", event);
                         } catch (DaddyException e) {
-                            border(e.getMessage());
+                            Ui.border(e.getMessage());
                             input = scanner.nextLine();
                             continue;
                         }
@@ -88,36 +86,36 @@ public class DaddyBot {
                     case "mark":
                         index = Integer.parseInt(daddyTask(input).substring(5).trim()) - 1;
                         if (index < 0 || index >= list.size()) {
-                            border("daddy could not find that task.");
+                            Ui.border("daddy could not find that task.");
                             input = scanner.nextLine();
                             continue;
                         }
                         list.get(index).mark();
-                        border("daddy is proud of you!\n" + list.get(index).getStatusIcon() + " " + list.get(index).toString());
+                        Ui.border("daddy is proud of you!\n" + list.get(index).getStatusIcon() + " " + list.get(index).toString());
                         break;
                     case "unmark":
                         index = Integer.parseInt(daddyTask(input).substring(7).trim()) - 1;
                         if (index < 0 || index >= list.size()) {
-                            border("daddy could not find that task.");
+                            Ui.border("daddy could not find that task.");
                             input = scanner.nextLine();
                             continue;
                         }
                         list.get(index).unmark();
-                        border("daddy is disappointed...\n" + list.get(index).getStatusIcon() + " " + list.get(index).toString());
+                        Ui.border("daddy is disappointed...\n" + list.get(index).getStatusIcon() + " " + list.get(index).toString());
                         break;
                     case "delete":
                         index = Integer.parseInt(daddyTask(input).substring(7).trim()) - 1;
                         if (index < 0 || index >= list.size()) {
-                            border("daddy could not find that task.");
+                            Ui.border("daddy could not find that task.");
                             input = scanner.nextLine();
                             continue;
                         }
                         Task removedTask = list.get(index);
                         list.remove(index);
-                        border("daddy removed: '" + removedTask.getDesc() + "'\ntotal tasks: " + list.size());
+                        Ui.border("daddy removed: '" + removedTask.getDesc() + "'\ntotal tasks: " + list.size());
                         break;
                     default:
-                        border("daddy doesn't understand that command.");
+                        Ui.border("daddy doesn't understand that command.");
                         break;
                 }
             } else {
@@ -129,15 +127,9 @@ public class DaddyBot {
             }
             input = scanner.nextLine();
         }
-        border("daddy's gonna go now...");
+        Ui.border("daddy's gonna go now...");
         scanner.close();
         
-    }
-
-    public static void border(String message) {
-        System.out.println("___________________________________________________________________\n");
-        System.out.println(message);
-        System.out.println("___________________________________________________________________\n");
     }
 
     public static Boolean daddyCheck(String input) {
@@ -156,25 +148,25 @@ public class DaddyBot {
     public static void noMagicWords(int num) {
         switch (num) {
             case 0:
-                border("daddy won't do it unless you say 'please daddy'");
+                Ui.border("daddy won't do it unless you say 'please daddy'");
                 break;
             case 1:
-                border("what are the magic words?");
+                Ui.border("what are the magic words?");
                 break;
             case 2:
-                border("are you forgetting something?"); 
+                Ui.border("are you forgetting something?"); 
                 break;
             case 3:
-                border("if you continue being naughty, daddy will punish you.");
+                Ui.border("if you continue being naughty, daddy will punish you.");
                 break;
             case 4:
-                border("daddy's getting angry... one more time and daddy is going to leave.");
+                Ui.border("daddy's getting angry... one more time and daddy is going to leave.");
                 break;
         }
     }
 
     public static void addTask(Task task, int size) {
-        border("daddy added: " + task.toString() + "\ntotal tasks: " + size);
+        Ui.border("daddy added: " + task.toString() + "\ntotal tasks: " + size);
     }
 
     public static void ifEmpty(Task task, ArrayList<Task> list) throws DaddyException {
@@ -191,7 +183,7 @@ public class DaddyBot {
 
     public static void addFromFile(ArrayList<Task> list, String filepath) {
         try {
-            Scanner reader = new Scanner(new File(filepath));
+            Scanner reader = new Scanner(new File(filepath + "/data/daddyslist.txt"));
             while (reader.hasNextLine()) {
                 String line = reader.nextLine();
                 if (validateFormat(line)) {
@@ -205,14 +197,14 @@ public class DaddyBot {
                             list.add(todo);
                             break;
                         case "D":
-                            Deadline deadline = new Deadline(parts[2].trim(), parts[3].trim());
+                            Deadline deadline = new Deadline(parts[2].trim(), LocalDate.parse(parts[3].trim()));
                             if (parts[1].trim().equals("1")) {
                                 deadline.mark();
                             }
                             list.add(deadline);
                             break;
                         case "E":
-                            Event event = new Event(parts[2].trim(), parts[3].trim(), parts[4].trim());
+                            Event event = new Event(parts[2].trim(), LocalDate.parse(parts[3].trim()), LocalDate.parse(parts[4].trim()));
                             if (parts[1].trim().equals("1")) {
                                 event.mark();
                             }
@@ -221,7 +213,7 @@ public class DaddyBot {
                     }
                 }
             }
-            scanner.close();
+            reader.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -277,6 +269,7 @@ public class DaddyBot {
             e.printStackTrace();
         }
     }   
+
 }
 
 class Task {
@@ -306,7 +299,7 @@ class Task {
 }
 
 class Deadline extends Task {
-    private String by;
+    private LocalDate by;
 
     public Deadline(String desc, LocalDate by) {
         super(desc);
@@ -323,7 +316,7 @@ class Deadline extends Task {
         }
     }
 
-    public String getBy() {
+    public LocalDate getBy() {
         return this.by;
     }
 }
@@ -339,10 +332,10 @@ class Todo extends Task {
 }
 
 class Event extends Task {
-    private String from;
-    private String to;
+    private LocalDate from;
+    private LocalDate to;
 
-    public Event(String desc, String from, String to) {
+    public Event(String desc, LocalDate from, LocalDate to) {
         super(desc);
         this.from = from;
         this.to = to;
@@ -352,11 +345,11 @@ class Event extends Task {
         return "[E]" + super.getStatusIcon() + " " + super.getDesc() + " (from: " + from + " to: " + to + ")";
     }
 
-    public String getFrom() {
+    public LocalDate getFrom() {
         return this.from;
     }
 
-    public String getTo() {
+    public LocalDate getTo() {
         return this.to;
     }
 }
@@ -379,5 +372,21 @@ class CreateFile {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+}
+
+class Ui {
+    public Ui() {
+        border("daddy can add todo, deadline and event tasks.\n" 
+        + "todo: type todo <task>.\ndeadline: type deadline <task> /by <YYYY-MM-DD>.\n"
+        + "event: type event <task> /from <YYYY-MM-DD> /to <YYYY-MM-DD>.\n"
+        + "be sure to add 'please daddy' at the end of your input.\n"
+        + "if you're saying bye, say 'bye daddy'.");
+    }
+
+    public static void border(String message) {
+        System.out.println("___________________________________________________________________\n");
+        System.out.println(message);
+        System.out.println("___________________________________________________________________\n");
     }
 }
