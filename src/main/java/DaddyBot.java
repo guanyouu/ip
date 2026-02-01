@@ -1,7 +1,14 @@
-import java.util.*;
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 
 public class DaddyBot {
     public static void main(String[] args) {
+        String path = System.getProperty("user.dir");
+        createDaddyListFile(path);
         Scanner scanner = new Scanner(System.in);
         border("daddy can add todo, deadline and event tasks.\n" 
         + "todo: type todo <task>.\ndeadline: type deadline <task> /by <date>.\n"
@@ -168,6 +175,10 @@ public class DaddyBot {
         list.add(task);
         addTask(task, list.size());
     }
+
+    public static void createDaddyListFile(String path) {
+        CreateFile.createFile(path);
+    }
 }
 
 class Task {
@@ -237,5 +248,20 @@ class Event extends Task {
 class DaddyException extends Exception {
     public DaddyException(String message) {
         super(message);
+    }
+}
+
+class CreateFile {
+    public static void createFile(String path) {
+        try {
+            File dir = new File(path + "/data");
+            dir.mkdirs();
+
+            File file = new File(path + "/data/daddyslist.txt");
+            file.createNewFile();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
