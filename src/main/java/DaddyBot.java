@@ -1,6 +1,7 @@
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -18,6 +19,7 @@ public class DaddyBot {
         String input = scanner.nextLine().toLowerCase();
         int magicWordCount = 0;
         ArrayList<Task> list = new ArrayList<Task>();
+        addFromFile(list, path);
         while (!input.equals("bye daddy")) {
             int listCount = 0;
             int index = -1;
@@ -27,6 +29,8 @@ public class DaddyBot {
                         Todo todo = new Todo(daddyTask(input).substring(4).trim());
                         try {
                             ifEmpty(todo, list);
+                            writeToFile(path + "/data/daddyslist.txt", todo);
+
                         } catch (DaddyException e) {
                             border(e.getMessage());
                             input = scanner.nextLine();
@@ -43,6 +47,7 @@ public class DaddyBot {
                         Deadline deadline = new Deadline(daddyTask(input).substring(9, seperatorIndex).trim(), daddyTask(input).substring(seperatorIndex + 3).trim());
                         try {
                             ifEmpty(deadline, list);
+                            writeToFile(path + "/data/daddyslist.txt", deadline);
                         } catch (DaddyException e) {
                             border(e.getMessage());
                             input = scanner.nextLine();
@@ -60,6 +65,7 @@ public class DaddyBot {
                         Event event = new Event(daddyTask(input).substring(5, seperatorIndex1).trim(), daddyTask(input).substring(seperatorIndex1 + 5, seperatorIndex2).trim(), daddyTask(input).substring(seperatorIndex2 + 3).trim());
                         try {
                             ifEmpty(event, list);
+                            writeToFile(path + "/data/daddyslist.txt", event);
                         } catch (DaddyException e) {
                             border(e.getMessage());
                             input = scanner.nextLine();
@@ -123,6 +129,7 @@ public class DaddyBot {
         }
         border("daddy's gonna go now...");
         scanner.close();
+        
     }
 
     public static void border(String message) {
@@ -179,6 +186,94 @@ public class DaddyBot {
     public static void createDaddyListFile(String path) {
         CreateFile.createFile(path);
     }
+
+    public static void addFromFile(ArrayList<Task> list, String filepath) {
+        try {
+            Scanner reader = new Scanner(new File(filepath));
+            while (reader.hasNextLine()) {
+                String line = reader.nextLine();
+                if (validateFormat(line)) {
+                    String[] parts = line.split("|");
+                    switch (parts[0].trim()) {
+                        case "T":
+                            Todo todo = new Todo(parts[2].trim());
+                            if (parts[1].trim().equals("1")) {
+                                todo.mark();
+                            }
+                            list.add(todo);
+                            break;
+                        case "D":
+                            Deadline deadline = new Deadline(parts[2].trim(), parts[3].trim());
+                            if (parts[1].trim().equals("1")) {
+                                deadline.mark();
+                            }
+                            list.add(deadline);
+                            break;
+                        case "E":
+                            Event event = new Event(parts[2].trim(), parts[3].trim(), parts[4].trim());
+                            if (parts[1].trim().equals("1")) {
+                                event.mark();
+                            }
+                            list.add(event);
+                            break;
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static boolean validateFormat(String line) {
+        String[] parts = line.split("|");
+        if (parts[0].trim().equals("T")) {
+            if (parts[1].trim().equals("0") || parts[1].trim().equals("1")) {
+                if (parts[2] != null) {
+                    return true;
+                }
+            }
+        }
+        if (parts[0].trim().equals("D")) {
+            if (parts[1].trim().equals("0") || parts[1].trim().equals("1")) {
+                if (parts[2] != null) {
+                    if (parts[3] != null){
+                        return true;
+                    }
+                }
+            }
+        }
+        if (parts[0].trim().equals("E")) {
+            if (parts[1].trim().equals("0") || parts[1].trim().equals("1")) {
+                if (parts[2] != null) {
+                    if (parts[3] != null) {
+                        if (parts[4] != null) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static void writeToFile(String filepath, Task task) {
+        try {
+            FileWriter writer = new FileWriter(filepath, true);
+            if (task instanceof Todo todo) {
+                writer.write("T | " + (todo.getStatusIcon().equals("[X]") ? "1" : "0") + " | " + todo.getDesc() + "\n");
+            } else if (task instanceof Deadline deadline) {
+                writer.write("D | " + (deadline.getStatusIcon().equals("[X]") ? "1" : "0") + " | " + deadline.getDesc() + " | " + deadline.getBy() + "\n");
+            } else if (task instanceof Event event) {
+                writer.write("E | " + (event.getStatusIcon().equals("[X]") ? "1" : "0") + " | " + event.getDesc() + " | " + event.getFrom() + " | " + event.getTo() + "\n");
+            } else {
+                writer.close();
+                throw new IllegalArgumentException("daddy could not write the task to file");
+            }
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }   
 }
 
 class Task {
@@ -218,6 +313,10 @@ class Deadline extends Task {
     public String toString() {
         return "[D]" + super.getStatusIcon() + " " + super.getDesc() + " (by: " + by + ")";
     }
+
+    public String getBy() {
+        return this.by;
+    }
 }
 
 class Todo extends Task {
@@ -242,6 +341,14 @@ class Event extends Task {
 
     public String toString() {
         return "[E]" + super.getStatusIcon() + " " + super.getDesc() + " (from: " + from + " to: " + to + ")";
+    }
+
+    public String getFrom() {
+        return this.from;
+    }
+
+    public String getTo() {
+        return this.to;
     }
 }
 
