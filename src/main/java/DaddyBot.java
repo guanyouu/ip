@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 public class DaddyBot {
     public static void main(String[] args) {
@@ -12,8 +13,8 @@ public class DaddyBot {
         createDaddyListFile(path);
         Scanner scanner = new Scanner(System.in);
         border("daddy can add todo, deadline and event tasks.\n" 
-        + "todo: type todo <task>.\ndeadline: type deadline <task> /by <date>.\n"
-        + "event: type event <task> /from <date> /to <date>.\n"
+        + "todo: type todo <task>.\ndeadline: type deadline <task> /by <YYYY-MM-DD>.\n"
+        + "event: type event <task> /from <YYYY-MM-DD> /to <YYYY-MM-DD>.\n"
         + "be sure to add 'please daddy' at the end of your input.\n"
         + "if you're saying bye, say 'bye daddy'.");
         String input = scanner.nextLine().toLowerCase();
@@ -44,7 +45,8 @@ public class DaddyBot {
                             input = scanner.nextLine();
                             continue;
                         }
-                        Deadline deadline = new Deadline(daddyTask(input).substring(9, seperatorIndex).trim(), daddyTask(input).substring(seperatorIndex + 3).trim());
+                        LocalDate byDate = LocalDate.parse(daddyTask(input).substring(seperatorIndex + 3).trim());
+                        Deadline deadline = new Deadline(daddyTask(input).substring(9, seperatorIndex).trim(), byDate);
                         try {
                             ifEmpty(deadline, list);
                             writeToFile(path + "/data/daddyslist.txt", deadline);
@@ -219,6 +221,7 @@ public class DaddyBot {
                     }
                 }
             }
+            scanner.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -305,13 +308,19 @@ class Task {
 class Deadline extends Task {
     private String by;
 
-    public Deadline(String desc, String by) {
+    public Deadline(String desc, LocalDate by) {
         super(desc);
         this.by = by;
     }
 
     public String toString() {
-        return "[D]" + super.getStatusIcon() + " " + super.getDesc() + " (by: " + by + ")";
+        LocalDate now = LocalDate.now();
+        long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(now, by);
+        if (daysBetween < 0) {
+            return "[D]" + super.getStatusIcon() + " " + super.getDesc() + " (by: " + by + ") - overdue by (" + Math.abs(daysBetween) + ") days";
+        } else {
+            return "[D]" + super.getStatusIcon() + " " + super.getDesc() + " (by: " + by + ") - due in (" + daysBetween + ") days";
+        }
     }
 
     public String getBy() {
