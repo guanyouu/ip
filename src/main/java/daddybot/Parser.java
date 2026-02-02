@@ -114,6 +114,21 @@ public class Parser {
                         }
                         TaskList.deleteTask(list.get(index), list, index, path);
                         break;
+                    case "find":
+                        String keyword = daddyTask(input).substring(5).trim();
+                        System.out.println("___________________________________________________________________\n");
+                        int foundCount = 0;
+                        for (Task task : list) {
+                            if (task.getDesc().contains(keyword)) {
+                                foundCount++;
+                                System.out.println(foundCount + ". " + task.toString());
+                            }
+                        }
+                        if (foundCount == 0) {
+                            System.out.println("daddy couldn't find any matching tasks.");
+                        }
+                        System.out.println("___________________________________________________________________\n");
+                        break;
                     default:
                         Ui.border("daddy doesn't understand that command.");
                         break;
