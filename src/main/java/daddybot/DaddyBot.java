@@ -10,7 +10,7 @@ public class DaddyBot {
         String path = System.getProperty("user.dir");
         Storage.createFile(path);
         Scanner scanner = new Scanner(System.in);
-        Ui ui = new Ui();
+        Ui.start();
         String input = scanner.nextLine().toLowerCase();
         ArrayList<Task> list = new ArrayList<Task>();
         Storage.addFromFile(list, path);

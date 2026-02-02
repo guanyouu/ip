@@ -2,6 +2,10 @@ package daddybot;
 
 public class Ui {
     public Ui() {
+        
+    }
+
+    public static void start() {
         border("daddy can add todo, deadline and event tasks.\n\n" 
         + "todo: type todo <task>.\ndeadline: type deadline <task> /by <YYYY-MM-DD>.\n"
         + "event: type event <task> /from <YYYY-MM-DD> /to <YYYY-MM-DD>.\n\n"
