@@ -41,17 +41,16 @@ public class Parser {
                     try {
                         ifEmpty(todo, list);
                         Storage.writeToFile(path + "/data/daddyslist.txt", todo);
-
-                    } catch (DaddyException e) {
-                        Ui.addBorder(e.getMessage());
-                        input = scanner.nextLine();
-                        continue;
-                    }
-                    break;
+                        } catch (DaddyException e) {
+                            Ui.border(e.getMessage());
+                            input = scanner.nextLine();
+                            continue;
+                        }
+                        break;
                 case "deadline":
                     int seperatorIndex = daddyTask(input).indexOf("/by ");
                     if (seperatorIndex == -1) {
-                        Ui.addBorder("daddy needs a /by to know the deadline.");
+                        Ui.border("daddy needs a /by to know the deadline.");
                         input = scanner.nextLine();
                         continue;
                     }
@@ -61,7 +60,7 @@ public class Parser {
                         ifEmpty(deadline, list);
                         Storage.writeToFile(path + "/data/daddyslist.txt", deadline);
                     } catch (DaddyException e) {
-                        Ui.addBorder(e.getMessage());
+                        Ui.border(e.getMessage());
                         input = scanner.nextLine();
                         continue;
                     }
@@ -70,20 +69,18 @@ public class Parser {
                     int seperatorIndex1 = daddyTask(input).indexOf("/from ");
                     int seperatorIndex2 = daddyTask(input).indexOf("/to ");
                     if (seperatorIndex1 == -1 || seperatorIndex2 == -1) {
-                        Ui.addBorder("daddy needs both /from and /to to know the event time.");
+                        Ui.border("daddy needs both /from and /to to know the event time.");
                         input = scanner.nextLine();
                         continue;
                     }
-                    LocalDate fromDate = LocalDate
-                            .parse(daddyTask(input).substring(seperatorIndex1 + 5, seperatorIndex2).trim());
+                    LocalDate fromDate = LocalDate.parse(daddyTask(input).substring(seperatorIndex1 + 5, seperatorIndex2).trim());
                     LocalDate toDate = LocalDate.parse(daddyTask(input).substring(seperatorIndex2 + 3).trim());
-                    Event event = new Event(daddyTask(input).substring(5, seperatorIndex1).trim(), fromDate,
-                            toDate);
+                    Event event = new Event(daddyTask(input).substring(5, seperatorIndex1).trim(), fromDate, toDate);
                     try {
                         ifEmpty(event, list);
                         Storage.writeToFile(path + "/data/daddyslist.txt", event);
                     } catch (DaddyException e) {
-                        Ui.addBorder(e.getMessage());
+                        Ui.border(e.getMessage());
                         input = scanner.nextLine();
                         continue;
                     }
@@ -102,36 +99,49 @@ public class Parser {
                 case "mark":
                     index = Integer.parseInt(daddyTask(input).substring(5).trim()) - 1;
                     if (index < 0 || index >= list.size()) {
-                        Ui.addBorder("daddy could not find that task.");
+                        Ui.border("daddy could not find that task.");
                         input = scanner.nextLine();
                         continue;
                     }
                     list.get(index).mark();
-                    Ui.addBorder("daddy is proud of you!\n" + list.get(index).getStatusIcon() + " "
-                            + list.get(index).toString());
+                    Ui.border("daddy is proud of you!\n" + list.get(index).getStatusIcon() + " " + list.get(index).toString());
                     break;
                 case "unmark":
                     index = Integer.parseInt(daddyTask(input).substring(7).trim()) - 1;
                     if (index < 0 || index >= list.size()) {
-                        Ui.addBorder("daddy could not find that task.");
+                        Ui.border("daddy could not find that task.");
                         input = scanner.nextLine();
                         continue;
                     }
                     list.get(index).unmark();
-                    Ui.addBorder("daddy is disappointed...\n" + list.get(index).getStatusIcon() + " "
-                            + list.get(index).toString());
+                    Ui.border("daddy is disappointed...\n" + list.get(index).getStatusIcon() + " " + list.get(index).toString());
                     break;
                 case "delete":
                     index = Integer.parseInt(daddyTask(input).substring(7).trim()) - 1;
                     if (index < 0 || index >= list.size()) {
-                        Ui.addBorder("daddy could not find that task.");
+                        Ui.border("daddy could not find that task.");
                         input = scanner.nextLine();
                         continue;
                     }
                     TaskList.deleteTask(list.get(index), list, index, path);
                     break;
+                case "find":
+                    String keyword = daddyTask(input).substring(5).trim();
+                    System.out.println("___________________________________________________________________\n");
+                    int foundCount = 0;
+                    for (Task task : list) {
+                        if (task.getDesc().contains(keyword)) {
+                            foundCount++;
+                            System.out.println(foundCount + ". " + task.toString());
+                        }
+                    }
+                    if (foundCount == 0) {
+                        System.out.println("daddy couldn't find any matching tasks.");
+                    }
+                    System.out.println("___________________________________________________________________\n");
+                    break;
                 default:
-                    Ui.addBorder("daddy doesn't understand that command.");
+                    Ui.border("daddy doesn't understand that command.");
                     break;
                 }
             } else {
