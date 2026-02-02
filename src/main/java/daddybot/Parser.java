@@ -9,12 +9,24 @@ import daddybot.task.Event;
 import daddybot.task.Task;
 import daddybot.task.Todo;
 
+/**
+ * Parser class to parse user input and execute commands.
+ */
+
 public class Parser {
     private String input;
     
     public Parser(String input) {
         this.input = input;
     }
+
+    /**
+     * Parses user input and executes corresponding commands.
+     *
+     * @param scanner Scanner object to read user input.
+     * @param input   The user input string.
+     * @param list    The list of tasks.
+     */
 
     public static void parse(Scanner scanner, String input, ArrayList<Task> list) {
         int magicWordCount = 0;
@@ -131,6 +143,13 @@ public class Parser {
         scanner.close();
     }
     
+    /**
+     * Checks if the input ends with "please daddy".
+     *
+     * @param input The user input string.
+     * @return True if the input ends with "please daddy", false otherwise.
+     */
+
     public static Boolean daddyCheck(String input) {
         if (input.length() > 12) {
             if (input.substring(input.length() - 12).toLowerCase().equals("please daddy")) {
@@ -140,9 +159,22 @@ public class Parser {
         return false;
     }
 
+    /**
+     * Removes "please daddy" from the end of the input string to see user's input.
+     *
+     * @param input The user input string.
+     * @return The input string without "please daddy".
+     */
+
     public static String daddyTask(String input) {
         return input.substring(0, input.length() - 12);
     }
+
+    /**
+     * Provides responses when the user forgets to say "please daddy".
+     *
+     * @param num The number of times the user has forgotten to say "please daddy".
+     */
 
     public static void noMagicWords(int num) {
         switch (num) {
@@ -163,6 +195,14 @@ public class Parser {
                 break;
         }
     }
+
+    /**
+     * Checks if the task description is empty before adding it to the list.
+     *
+     * @param task The task to be added.
+     * @param list The list of tasks.
+     * @throws DaddyException If the task description is empty.
+     */
 
     public static void ifEmpty(Task task, ArrayList<Task> list) throws DaddyException {
         if (task.getDesc() == "") {

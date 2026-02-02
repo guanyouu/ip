@@ -4,8 +4,16 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import daddybot.task.Task;
 
-
+/**
+ * The main class of DaddyBot application.
+ */
 public class DaddyBot {
+
+    /**
+     * Runs the DaddyBot application.
+     * 
+     * @param args Command line arguments
+     */
     public static void main(String[] args) {
         String path = System.getProperty("user.dir");
         Storage.createFile(path);

@@ -12,6 +12,9 @@ import daddybot.task.Event;
 import daddybot.task.Task;
 import daddybot.task.Todo;
 
+/**
+ * Handles file storage operations for DaddyBot.
+ */
 
 public class Storage {
     private String filepath;
@@ -19,6 +22,11 @@ public class Storage {
     public Storage(String filepath) {
         this.filepath = filepath;
     }
+
+    /**
+     * Creates the data directory and daddyslist.txt file if they do not exist.
+     * @param path The base path where the data directory should be created.
+     */
 
     public static void createFile(String path) {
         try {
@@ -33,10 +41,22 @@ public class Storage {
         }
     }
 
+    /**
+     * Deletes the specified file.
+     * @param filepath The path of the file to be deleted.
+     */
+
     public static void deleteFile(String filepath) {
         File file = new File(filepath);
         file.delete();
     }
+
+    /**
+     * Validates the format of a line from the storage file.
+     * @param line The line to be validated.
+     * @return True if the format is valid, false otherwise.
+     */
+
     public static boolean validateFormat(String line) {
         String[] parts = line.split("\\|");
         if (parts[0].trim().equals("T")) {
@@ -68,6 +88,12 @@ public class Storage {
         }
         return false;
     }
+
+    /**
+     * Reads tasks from the storage file and adds them to the provided list.
+     * @param list The list to which tasks will be added.
+     * @param filepath The base path where the daddyslist.txt file is located.
+     */
 
     public static void addFromFile(ArrayList<Task> list, String filepath) {
         try {
@@ -106,6 +132,12 @@ public class Storage {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Writes a task to the storage file.
+     * @param filepath The path of the storage file.
+     * @param task The task to be written to the file.
+     */
 
     public static void writeToFile(String filepath, Task task) {
         try {

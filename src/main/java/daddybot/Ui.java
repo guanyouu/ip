@@ -1,9 +1,21 @@
 package daddybot;
 
+/**
+ * Ui class to handle user interactions.
+ */
+
 public class Ui {
+
+    /**
+     * Constructor for Ui class.
+     */
+
     public Ui() {
-        
     }
+
+    /**
+     * Displays the welcome message and instructions.
+     */ 
 
     public static void start() {
         border("daddy can add todo, deadline and event tasks.\n\n" 
@@ -14,6 +26,11 @@ public class Ui {
         + "be sure to add 'please daddy' at the end of your input.\n"
         + "if you're saying bye, say 'bye daddy'.");
     }
+
+    /**
+     * Displays a border around a message.
+     * @param message Message to be displayed between the border.
+     */
 
     public static void border(String message) {
         System.out.println("___________________________________________________________________\n");
