@@ -25,6 +25,7 @@ public class Storage {
 
     /**
      * Creates the data directory and daddyslist.txt file if they do not exist.
+     * 
      * @param path The base path where the data directory should be created.
      */
 
@@ -43,6 +44,7 @@ public class Storage {
 
     /**
      * Deletes the specified file.
+     * 
      * @param filepath The path of the file to be deleted.
      */
 
@@ -53,11 +55,12 @@ public class Storage {
 
     /**
      * Validates the format of a line from the storage file.
+     * 
      * @param line The line to be validated.
      * @return True if the format is valid, false otherwise.
      */
 
-    public static boolean validateFormat(String line) {
+    public static boolean isValid(String line) {
         String[] parts = line.split("\\|");
         if (parts[0].trim().equals("T")) {
             if (parts[1].trim().equals("0") || parts[1].trim().equals("1")) {
@@ -69,7 +72,7 @@ public class Storage {
         if (parts[0].trim().equals("D")) {
             if (parts[1].trim().equals("0") || parts[1].trim().equals("1")) {
                 if (parts[2] != null) {
-                    if (parts[3] != null){
+                    if (parts[3] != null) {
                         return true;
                     }
                 }
@@ -91,7 +94,8 @@ public class Storage {
 
     /**
      * Reads tasks from the storage file and adds them to the provided list.
-     * @param list The list to which tasks will be added.
+     * 
+     * @param list     The list to which tasks will be added.
      * @param filepath The base path where the daddyslist.txt file is located.
      */
 
@@ -100,30 +104,31 @@ public class Storage {
             Scanner reader = new Scanner(new File(filepath + "/data/daddyslist.txt"));
             while (reader.hasNextLine()) {
                 String line = reader.nextLine();
-                if (validateFormat(line)) {
+                if (isValid(line)) {
                     String[] parts = line.split("\\|");
                     switch (parts[0].trim()) {
-                        case "T":
-                            Todo todo = new Todo(parts[2].trim());
-                            if (parts[1].trim().equals("1")) {
-                                todo.mark();
-                            }
-                            list.add(todo);
-                            break;
-                        case "D":
-                            Deadline deadline = new Deadline(parts[2].trim(), LocalDate.parse(parts[3].trim()));
-                            if (parts[1].trim().equals("1")) {
-                                deadline.mark();
-                            }
-                            list.add(deadline);
-                            break;
-                        case "E":
-                            Event event = new Event(parts[2].trim(), LocalDate.parse(parts[3].trim()), LocalDate.parse(parts[4].trim()));
-                            if (parts[1].trim().equals("1")) {
-                                event.mark();
-                            }
-                            list.add(event);
-                            break;
+                    case "T":
+                        Todo todo = new Todo(parts[2].trim());
+                        if (parts[1].trim().equals("1")) {
+                            todo.mark();
+                        }
+                        list.add(todo);
+                        break;
+                    case "D":
+                        Deadline deadline = new Deadline(parts[2].trim(), LocalDate.parse(parts[3].trim()));
+                        if (parts[1].trim().equals("1")) {
+                            deadline.mark();
+                        }
+                        list.add(deadline);
+                        break;
+                    case "E":
+                        Event event = new Event(parts[2].trim(), LocalDate.parse(parts[3].trim()),
+                                LocalDate.parse(parts[4].trim()));
+                        if (parts[1].trim().equals("1")) {
+                            event.mark();
+                        }
+                        list.add(event);
+                        break;
                     }
                 }
             }
@@ -135,8 +140,9 @@ public class Storage {
 
     /**
      * Writes a task to the storage file.
+     * 
      * @param filepath The path of the storage file.
-     * @param task The task to be written to the file.
+     * @param task     The task to be written to the file.
      */
 
     public static void writeToFile(String filepath, Task task) {
@@ -145,9 +151,11 @@ public class Storage {
             if (task instanceof Todo todo) {
                 writer.write("T | " + (todo.getStatusIcon().equals("[X]") ? "1" : "0") + " | " + todo.getDesc() + "\n");
             } else if (task instanceof Deadline deadline) {
-                writer.write("D | " + (deadline.getStatusIcon().equals("[X]") ? "1" : "0") + " | " + deadline.getDesc() + " | " + deadline.getBy() + "\n");
+                writer.write("D | " + (deadline.getStatusIcon().equals("[X]") ? "1" : "0") + " | " + deadline.getDesc()
+                        + " | " + deadline.getBy() + "\n");
             } else if (task instanceof Event event) {
-                writer.write("E | " + (event.getStatusIcon().equals("[X]") ? "1" : "0") + " | " + event.getDesc() + " | " + event.getFrom() + " | " + event.getTo() + "\n");
+                writer.write("E | " + (event.getStatusIcon().equals("[X]") ? "1" : "0") + " | " + event.getDesc()
+                        + " | " + event.getFrom() + " | " + event.getTo() + "\n");
             } else {
                 writer.close();
                 throw new IllegalArgumentException("daddy could not write the task to file");
@@ -156,5 +164,5 @@ public class Storage {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }   
+    }
 }

@@ -15,7 +15,7 @@ import daddybot.task.Todo;
 
 public class Parser {
     private String input;
-    
+
     public Parser(String input) {
         this.input = input;
     }
@@ -36,99 +36,103 @@ public class Parser {
             int index = -1;
             if (daddyCheck(input)) {
                 switch (input.substring(0, input.indexOf(" "))) {
-                    case "todo":
-                        Todo todo = new Todo(daddyTask(input).substring(4).trim());
-                        try {
-                            ifEmpty(todo, list);
-                            Storage.writeToFile(path + "/data/daddyslist.txt", todo);
+                case "todo":
+                    Todo todo = new Todo(daddyTask(input).substring(4).trim());
+                    try {
+                        ifEmpty(todo, list);
+                        Storage.writeToFile(path + "/data/daddyslist.txt", todo);
 
-                        } catch (DaddyException e) {
-                            Ui.border(e.getMessage());
-                            input = scanner.nextLine();
-                            continue;
-                        }
-                        break;
-                    case "deadline":
-                        int seperatorIndex = daddyTask(input).indexOf("/by ");
-                        if (seperatorIndex == -1) {
-                            Ui.border("daddy needs a /by to know the deadline.");
-                            input = scanner.nextLine();
-                            continue;
-                        }
-                        LocalDate byDate = LocalDate.parse(daddyTask(input).substring(seperatorIndex + 3).trim());
-                        Deadline deadline = new Deadline(daddyTask(input).substring(9, seperatorIndex).trim(), byDate);
-                        try {
-                            ifEmpty(deadline, list);
-                            Storage.writeToFile(path + "/data/daddyslist.txt", deadline);
-                        } catch (DaddyException e) {
-                            Ui.border(e.getMessage());
-                            input = scanner.nextLine();
-                            continue;
-                        }
-                        break;
-                    case "event":
-                        int seperatorIndex1 = daddyTask(input).indexOf("/from ");
-                        int seperatorIndex2 = daddyTask(input).indexOf("/to ");
-                        if (seperatorIndex1 == -1 || seperatorIndex2 == -1) {
-                            Ui.border("daddy needs both /from and /to to know the event time.");
-                            input = scanner.nextLine();
-                            continue;
-                        }
-                        LocalDate fromDate = LocalDate.parse(daddyTask(input).substring(seperatorIndex1 + 5, seperatorIndex2).trim());
-                        LocalDate toDate = LocalDate.parse(daddyTask(input).substring(seperatorIndex2 + 3).trim());
-                        Event event = new Event(daddyTask(input).substring(5, seperatorIndex1).trim(), fromDate, toDate);
-                        try {
-                            ifEmpty(event, list);
-                            Storage.writeToFile(path + "/data/daddyslist.txt", event);
-                        } catch (DaddyException e) {
-                            Ui.border(e.getMessage());
-                            input = scanner.nextLine();
-                            continue;
-                        }
-                        break;
-                    case "list":
-                        System.out.println("___________________________________________________________________\n");
-                        int n = list.size();
-                        if (n == 0) {
-                            System.out.println("list is empty.");
-                        }
-                        while (listCount++ < n) {
-                            System.out.println(listCount + ". " + list.get(listCount - 1).toString());
-                        }
-                        System.out.println("___________________________________________________________________\n");
-                        break;
-                    case "mark":
-                        index = Integer.parseInt(daddyTask(input).substring(5).trim()) - 1;
-                        if (index < 0 || index >= list.size()) {
-                            Ui.border("daddy could not find that task.");
-                            input = scanner.nextLine();
-                            continue;
-                        }
-                        list.get(index).mark();
-                        Ui.border("daddy is proud of you!\n" + list.get(index).getStatusIcon() + " " + list.get(index).toString());
-                        break;
-                    case "unmark":
-                        index = Integer.parseInt(daddyTask(input).substring(7).trim()) - 1;
-                        if (index < 0 || index >= list.size()) {
-                            Ui.border("daddy could not find that task.");
-                            input = scanner.nextLine();
-                            continue;
-                        }
-                        list.get(index).unmark();
-                        Ui.border("daddy is disappointed...\n" + list.get(index).getStatusIcon() + " " + list.get(index).toString());
-                        break;
-                    case "delete":
-                        index = Integer.parseInt(daddyTask(input).substring(7).trim()) - 1;
-                        if (index < 0 || index >= list.size()) {
-                            Ui.border("daddy could not find that task.");
-                            input = scanner.nextLine();
-                            continue;
-                        }
-                        TaskList.deleteTask(list.get(index), list, index, path);
-                        break;
-                    default:
-                        Ui.border("daddy doesn't understand that command.");
-                        break;
+                    } catch (DaddyException e) {
+                        Ui.addBorder(e.getMessage());
+                        input = scanner.nextLine();
+                        continue;
+                    }
+                    break;
+                case "deadline":
+                    int seperatorIndex = daddyTask(input).indexOf("/by ");
+                    if (seperatorIndex == -1) {
+                        Ui.addBorder("daddy needs a /by to know the deadline.");
+                        input = scanner.nextLine();
+                        continue;
+                    }
+                    LocalDate byDate = LocalDate.parse(daddyTask(input).substring(seperatorIndex + 3).trim());
+                    Deadline deadline = new Deadline(daddyTask(input).substring(9, seperatorIndex).trim(), byDate);
+                    try {
+                        ifEmpty(deadline, list);
+                        Storage.writeToFile(path + "/data/daddyslist.txt", deadline);
+                    } catch (DaddyException e) {
+                        Ui.addBorder(e.getMessage());
+                        input = scanner.nextLine();
+                        continue;
+                    }
+                    break;
+                case "event":
+                    int seperatorIndex1 = daddyTask(input).indexOf("/from ");
+                    int seperatorIndex2 = daddyTask(input).indexOf("/to ");
+                    if (seperatorIndex1 == -1 || seperatorIndex2 == -1) {
+                        Ui.addBorder("daddy needs both /from and /to to know the event time.");
+                        input = scanner.nextLine();
+                        continue;
+                    }
+                    LocalDate fromDate = LocalDate
+                            .parse(daddyTask(input).substring(seperatorIndex1 + 5, seperatorIndex2).trim());
+                    LocalDate toDate = LocalDate.parse(daddyTask(input).substring(seperatorIndex2 + 3).trim());
+                    Event event = new Event(daddyTask(input).substring(5, seperatorIndex1).trim(), fromDate,
+                            toDate);
+                    try {
+                        ifEmpty(event, list);
+                        Storage.writeToFile(path + "/data/daddyslist.txt", event);
+                    } catch (DaddyException e) {
+                        Ui.addBorder(e.getMessage());
+                        input = scanner.nextLine();
+                        continue;
+                    }
+                    break;
+                case "list":
+                    System.out.println("___________________________________________________________________\n");
+                    int n = list.size();
+                    if (n == 0) {
+                        System.out.println("list is empty.");
+                    }
+                    while (listCount++ < n) {
+                        System.out.println(listCount + ". " + list.get(listCount - 1).toString());
+                    }
+                    System.out.println("___________________________________________________________________\n");
+                    break;
+                case "mark":
+                    index = Integer.parseInt(daddyTask(input).substring(5).trim()) - 1;
+                    if (index < 0 || index >= list.size()) {
+                        Ui.addBorder("daddy could not find that task.");
+                        input = scanner.nextLine();
+                        continue;
+                    }
+                    list.get(index).mark();
+                    Ui.addBorder("daddy is proud of you!\n" + list.get(index).getStatusIcon() + " "
+                            + list.get(index).toString());
+                    break;
+                case "unmark":
+                    index = Integer.parseInt(daddyTask(input).substring(7).trim()) - 1;
+                    if (index < 0 || index >= list.size()) {
+                        Ui.addBorder("daddy could not find that task.");
+                        input = scanner.nextLine();
+                        continue;
+                    }
+                    list.get(index).unmark();
+                    Ui.addBorder("daddy is disappointed...\n" + list.get(index).getStatusIcon() + " "
+                            + list.get(index).toString());
+                    break;
+                case "delete":
+                    index = Integer.parseInt(daddyTask(input).substring(7).trim()) - 1;
+                    if (index < 0 || index >= list.size()) {
+                        Ui.addBorder("daddy could not find that task.");
+                        input = scanner.nextLine();
+                        continue;
+                    }
+                    TaskList.deleteTask(list.get(index), list, index, path);
+                    break;
+                default:
+                    Ui.addBorder("daddy doesn't understand that command.");
+                    break;
                 }
             } else {
                 noMagicWords(magicWordCount);
@@ -139,10 +143,10 @@ public class Parser {
             }
             input = scanner.nextLine();
         }
-        Ui.border("daddy's gonna go now...");
+        Ui.addBorder("daddy's gonna go now...");
         scanner.close();
     }
-    
+
     /**
      * Checks if the input ends with "please daddy".
      *
@@ -154,7 +158,7 @@ public class Parser {
         if (input.length() > 12) {
             if (input.substring(input.length() - 12).toLowerCase().equals("please daddy")) {
                 return true;
-            }            
+            }
         }
         return false;
     }
@@ -178,21 +182,21 @@ public class Parser {
 
     public static void noMagicWords(int num) {
         switch (num) {
-            case 0:
-                Ui.border("daddy won't do it unless you say 'please daddy'");
-                break;
-            case 1:
-                Ui.border("what are the magic words?");
-                break;
-            case 2:
-                Ui.border("are you forgetting something?"); 
-                break;
-            case 3:
-                Ui.border("if you continue being naughty, daddy will punish you.");
-                break;
-            case 4:
-                Ui.border("daddy's getting angry... one more time and daddy is going to leave.");
-                break;
+        case 0:
+            Ui.addBorder("daddy won't do it unless you say 'please daddy'");
+            break;
+        case 1:
+            Ui.addBorder("what are the magic words?");
+            break;
+        case 2:
+            Ui.addBorder("are you forgetting something?");
+            break;
+        case 3:
+            Ui.addBorder("if you continue being naughty, daddy will punish you.");
+            break;
+        case 4:
+            Ui.addBorder("daddy's getting angry... one more time and daddy is going to leave.");
+            break;
         }
     }
 

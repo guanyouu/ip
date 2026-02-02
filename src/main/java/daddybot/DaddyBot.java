@@ -7,6 +7,7 @@ import daddybot.task.Task;
 /**
  * The main class of DaddyBot application.
  */
+
 public class DaddyBot {
 
     /**

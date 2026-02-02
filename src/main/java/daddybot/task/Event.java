@@ -17,7 +17,8 @@ public class Event extends Task {
     }
 
     /**
-     * Returns a string representation of the event task.   
+     * Returns a string representation of the event task.
+     * 
      * @return String representation of the event task.
      */
 
@@ -28,6 +29,7 @@ public class Event extends Task {
 
     /**
      * Gets the start date of the event.
+     * 
      * @return LocalDate representing the start date.
      */
 
@@ -37,6 +39,7 @@ public class Event extends Task {
 
     /**
      * Gets the end date of the event.
+     * 
      * @return LocalDate representing the end date.
      */
 
