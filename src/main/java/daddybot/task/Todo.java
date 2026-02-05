@@ -3,7 +3,6 @@ package daddybot.task;
 /**
  * Represents a Todo task.
  */
-
 public class Todo extends Task {
     public Todo(String desc) {
         super(desc);
@@ -14,7 +13,6 @@ public class Todo extends Task {
      *
      * @return A string representing the Todo task.
      */
-
     @Override
     public String toString() {
         return "[T]" + super.getStatusIcon() + " " + super.getDesc();

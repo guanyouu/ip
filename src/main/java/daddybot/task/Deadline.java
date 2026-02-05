@@ -6,7 +6,6 @@ import java.time.temporal.ChronoUnit;
 /**
  * Represents a deadline task with a description and a due date.
  */
-
 public class Deadline extends Task {
     private LocalDate by;
 
@@ -21,7 +20,6 @@ public class Deadline extends Task {
      *
      * @return A formatted string representing the deadline task.
      */
-
     @Override
     public String toString() {
         LocalDate now = LocalDate.now();
@@ -38,7 +36,6 @@ public class Deadline extends Task {
      *
      * @return The due date as a LocalDate object.
      */
-
     public LocalDate getBy() {
         return this.by;
     }

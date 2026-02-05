@@ -7,7 +7,6 @@ import daddybot.task.Task;
 /**
  * The main class of DaddyBot application.
  */
-
 public class DaddyBot {
 
     /**
@@ -20,6 +19,7 @@ public class DaddyBot {
         Storage.createFile(path);
         Scanner scanner = new Scanner(System.in);
         Ui.start();
+        
         String input = scanner.nextLine().toLowerCase();
         ArrayList<Task> list = new ArrayList<Task>();
         Storage.addFromFile(list, path);

@@ -5,7 +5,6 @@ import java.time.LocalDate;
 /**
  * Represents an event task with a description, start date, and end date.
  */
-
 public class Event extends Task {
     private LocalDate from;
     private LocalDate to;
@@ -21,7 +20,6 @@ public class Event extends Task {
      * 
      * @return String representation of the event task.
      */
-
     @Override
     public String toString() {
         return "[E]" + super.getStatusIcon() + " " + super.getDesc() + " (from: " + from + " to: " + to + ")";
@@ -32,7 +30,6 @@ public class Event extends Task {
      * 
      * @return LocalDate representing the start date.
      */
-
     public LocalDate getFrom() {
         return this.from;
     }
@@ -42,7 +39,6 @@ public class Event extends Task {
      * 
      * @return LocalDate representing the end date.
      */
-
     public LocalDate getTo() {
         return this.to;
     }

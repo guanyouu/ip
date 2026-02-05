@@ -37,7 +37,6 @@ public class Task {
     /**
      * Marks the task as done.
      */
-
     public void mark() {
         this.isDone = true;
     }
@@ -45,7 +44,6 @@ public class Task {
     /**
      * Marks the task as not done.
      */
-
     public void unmark() {
         this.isDone = false;
     }

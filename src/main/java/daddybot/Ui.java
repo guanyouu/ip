@@ -3,20 +3,11 @@ package daddybot;
 /**
  * Ui class to handle user interactions.
  */
-
 public class Ui {
-
-    /**
-     * Constructor for Ui class.
-     */
-
-    public Ui() {
-    }
 
     /**
      * Displays the welcome message and instructions.
      */
-
     public static void start() {
         addBorder("daddy can add todo, deadline and event tasks.\n\n" 
         + "todo: type todo <task>.\ndeadline: type deadline <task> /by <YYYY-MM-DD>.\n"
@@ -32,7 +23,6 @@ public class Ui {
      * 
      * @param message Message to be displayed between the border.
      */
-
     public static void addBorder(String message) {
         System.out.println("___________________________________________________________________\n");
         System.out.println(message);

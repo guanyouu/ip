@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
+
 import daddybot.task.Deadline;
 import daddybot.task.Event;
 import daddybot.task.Task;
@@ -15,7 +16,6 @@ import daddybot.task.Todo;
 /**
  * Handles file storage operations for DaddyBot.
  */
-
 public class Storage {
     private String filepath;
 
@@ -28,7 +28,6 @@ public class Storage {
      * 
      * @param path The base path where the data directory should be created.
      */
-
     public static void createFile(String path) {
         try {
             File dir = new File(path + "/data");
@@ -47,7 +46,6 @@ public class Storage {
      * 
      * @param filepath The path of the file to be deleted.
      */
-
     public static void deleteFile(String filepath) {
         File file = new File(filepath);
         file.delete();
@@ -59,7 +57,6 @@ public class Storage {
      * @param line The line to be validated.
      * @return True if the format is valid, false otherwise.
      */
-
     public static boolean isValid(String line) {
         String[] parts = line.split("\\|");
         if (parts[0].trim().equals("T")) {
@@ -98,7 +95,6 @@ public class Storage {
      * @param list     The list to which tasks will be added.
      * @param filepath The base path where the daddyslist.txt file is located.
      */
-
     public static void addFromFile(ArrayList<Task> list, String filepath) {
         try {
             Scanner reader = new Scanner(new File(filepath + "/data/daddyslist.txt"));
@@ -144,7 +140,6 @@ public class Storage {
      * @param filepath The path of the storage file.
      * @param task     The task to be written to the file.
      */
-
     public static void writeToFile(String filepath, Task task) {
         try {
             FileWriter writer = new FileWriter(filepath, true);

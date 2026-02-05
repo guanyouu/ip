@@ -12,7 +12,6 @@ import daddybot.task.Todo;
 /**
  * Parser class to parse user input and execute commands.
  */
-
 public class Parser {
     private String input;
 
@@ -27,26 +26,25 @@ public class Parser {
      * @param input   The user input string.
      * @param list    The list of tasks.
      */
-
     public static void parse(Scanner scanner, String input, ArrayList<Task> list) {
         int magicWordCount = 0;
         String path = System.getProperty("user.dir");
         while (!input.equals("bye daddy")) {
             int listCount = 0;
             int index = -1;
-            if (daddyCheck(input)) {
+            if (checkDaddy(input)) {
                 switch (input.substring(0, input.indexOf(" "))) {
                 case "todo":
                     Todo todo = new Todo(daddyTask(input).substring(4).trim());
                     try {
-                        ifEmpty(todo, list);
+                        isEmpty(todo, list);
                         Storage.writeToFile(path + "/data/daddyslist.txt", todo);
-                        } catch (DaddyException e) {
-                            Ui.border(e.getMessage());
-                            input = scanner.nextLine();
-                            continue;
-                        }
-                        break;
+                    } catch (DaddyException e) {
+                        Ui.border(e.getMessage());
+                        input = scanner.nextLine();
+                        continue;
+                    }
+                    break;
                 case "deadline":
                     int seperatorIndex = daddyTask(input).indexOf("/by ");
                     if (seperatorIndex == -1) {
@@ -57,7 +55,7 @@ public class Parser {
                     LocalDate byDate = LocalDate.parse(daddyTask(input).substring(seperatorIndex + 3).trim());
                     Deadline deadline = new Deadline(daddyTask(input).substring(9, seperatorIndex).trim(), byDate);
                     try {
-                        ifEmpty(deadline, list);
+                        isEmpty(deadline, list);
                         Storage.writeToFile(path + "/data/daddyslist.txt", deadline);
                     } catch (DaddyException e) {
                         Ui.border(e.getMessage());
@@ -66,18 +64,18 @@ public class Parser {
                     }
                     break;
                 case "event":
-                    int seperatorIndex1 = daddyTask(input).indexOf("/from ");
-                    int seperatorIndex2 = daddyTask(input).indexOf("/to ");
-                    if (seperatorIndex1 == -1 || seperatorIndex2 == -1) {
+                    int seperatorIndexFrom = daddyTask(input).indexOf("/from ");
+                    int seperatorIndexTo = daddyTask(input).indexOf("/to ");
+                    if (seperatorIndexFrom == -1 || seperatorIndexTo == -1) {
                         Ui.border("daddy needs both /from and /to to know the event time.");
                         input = scanner.nextLine();
                         continue;
                     }
-                    LocalDate fromDate = LocalDate.parse(daddyTask(input).substring(seperatorIndex1 + 5, seperatorIndex2).trim());
-                    LocalDate toDate = LocalDate.parse(daddyTask(input).substring(seperatorIndex2 + 3).trim());
-                    Event event = new Event(daddyTask(input).substring(5, seperatorIndex1).trim(), fromDate, toDate);
+                    LocalDate fromDate = LocalDate.parse(daddyTask(input).substring(seperatorIndexFrom + 5, seperatorIndexTo).trim());
+                    LocalDate toDate = LocalDate.parse(daddyTask(input).substring(seperatorIndexTo + 3).trim());
+                    Event event = new Event(daddyTask(input).substring(5, seperatorIndexFrom).trim(), fromDate, toDate);
                     try {
-                        ifEmpty(event, list);
+                        isEmpty(event, list);
                         Storage.writeToFile(path + "/data/daddyslist.txt", event);
                     } catch (DaddyException e) {
                         Ui.border(e.getMessage());
@@ -128,14 +126,14 @@ public class Parser {
                 case "find":
                     String keyword = daddyTask(input).substring(5).trim();
                     System.out.println("___________________________________________________________________\n");
-                    int foundCount = 0;
+                    int countFound = 0;
                     for (Task task : list) {
                         if (task.getDesc().contains(keyword)) {
-                            foundCount++;
-                            System.out.println(foundCount + ". " + task.toString());
+                            countFound++;
+                            System.out.println(countFound + ". " + task.toString());
                         }
                     }
-                    if (foundCount == 0) {
+                    if (countFound == 0) {
                         System.out.println("daddy couldn't find any matching tasks.");
                     }
                     System.out.println("___________________________________________________________________\n");
@@ -145,7 +143,7 @@ public class Parser {
                     break;
                 }
             } else {
-                noMagicWords(magicWordCount);
+                hasNoMagicWords(magicWordCount);
                 magicWordCount++;
                 if (magicWordCount > 5) {
                     break;
@@ -163,8 +161,7 @@ public class Parser {
      * @param input The user input string.
      * @return True if the input ends with "please daddy", false otherwise.
      */
-
-    public static Boolean daddyCheck(String input) {
+    public static Boolean checkDaddy(String input) {
         if (input.length() > 12) {
             if (input.substring(input.length() - 12).toLowerCase().equals("please daddy")) {
                 return true;
@@ -179,7 +176,6 @@ public class Parser {
      * @param input The user input string.
      * @return The input string without "please daddy".
      */
-
     public static String daddyTask(String input) {
         return input.substring(0, input.length() - 12);
     }
@@ -189,8 +185,7 @@ public class Parser {
      *
      * @param num The number of times the user has forgotten to say "please daddy".
      */
-
-    public static void noMagicWords(int num) {
+    public static void hasNoMagicWords(int num) {
         switch (num) {
         case 0:
             Ui.addBorder("daddy won't do it unless you say 'please daddy'");
@@ -217,8 +212,7 @@ public class Parser {
      * @param list The list of tasks.
      * @throws DaddyException If the task description is empty.
      */
-
-    public static void ifEmpty(Task task, ArrayList<Task> list) throws DaddyException {
+    public static void isEmpty(Task task, ArrayList<Task> list) throws DaddyException {
         if (task.getDesc() == "") {
             throw new DaddyException("daddy can't add an empty task.");
         }
