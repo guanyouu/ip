@@ -29,8 +29,8 @@ public class TaskList {
      * @param task the task to be added.
      * @param size the new size of the list.
      */
-    public static void addTask(Task task, int size) {
-        Ui.addBorder("daddy added: " + task.toString() + "\ntotal tasks: " + size);
+    public static String addTask(Task task, int size) {
+        return "daddy added: " + task.toString() + "\ntotal tasks: " + size;
     }
 
     /**
@@ -41,12 +41,12 @@ public class TaskList {
      * @param index the index of the task to be deleted.
      * @param path  the path to the storage file.
      */
-    public static void deleteTask(Task task, ArrayList<Task> list, int index, String path) {
+    public static String deleteTask(Task task, ArrayList<Task> list, int index, String path) {
         Task removedTask = list.get(index);
         list.remove(index);
         Storage.deleteFile(path + "/data/daddyslist.txt");
         Storage.createFile(path);
         Storage.addFromFile(list, path);
-        Ui.addBorder("daddy removed: '" + removedTask.getDesc() + "'\ntotal tasks: " + list.size());
+        return "daddy removed: '" + removedTask.getDesc() + "'\ntotal tasks: " + list.size();
     }
 }

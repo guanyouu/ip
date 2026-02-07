@@ -12,8 +12,8 @@ public class DaddyTest {
 
     @Test
     public void daddyCheckTest() throws Exception {
-        assertTrue(Parser.daddyCheck("todo list please daddy"));
-        assertFalse(Parser.daddyCheck("todo list")); 
+        assertTrue(Parser.checkDaddy("todo list please daddy"));
+        assertFalse(Parser.checkDaddy("todo list")); 
     }
 
     @Test

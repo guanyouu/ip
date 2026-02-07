@@ -17,12 +17,13 @@ public class DaddyBot {
     public static void main(String[] args) {
         String path = System.getProperty("user.dir");
         Storage.createFile(path);
-        Scanner scanner = new Scanner(System.in);
-        Ui.start();
-        
-        String input = scanner.nextLine().toLowerCase();
+
+    }
+
+    public String getResponse(String input) {
         ArrayList<Task> list = new ArrayList<Task>();
-        Storage.addFromFile(list, path);
-        Parser.parse(scanner, input, list);
+        Storage.addFromFile(list, System.getProperty("user.dir"));
+        return Parser.parse(input, list);
+        
     }
 }
