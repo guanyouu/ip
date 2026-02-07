@@ -9,6 +9,7 @@ import daddybot.task.Task;
  */
 public class DaddyBot {
 
+    private static ArrayList<Task> list = new ArrayList<Task>();
     /**
      * Runs the DaddyBot application.
      * 
@@ -17,13 +18,11 @@ public class DaddyBot {
     public static void main(String[] args) {
         String path = System.getProperty("user.dir");
         Storage.createFile(path);
+        Storage.addFromFile(list, System.getProperty("user.dir"));
 
     }
 
     public String getResponse(String input) {
-        ArrayList<Task> list = new ArrayList<Task>();
-        Storage.addFromFile(list, System.getProperty("user.dir"));
         return Parser.parse(input, list);
-        
     }
 }

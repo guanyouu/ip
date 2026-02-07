@@ -20,7 +20,8 @@ public class Parser {
         if (input == null || input.isBlank()) {
             return "daddy doesn't understand an empty command.";
         }
-
+        // We assume input is not null or blank
+        assert input != null && !input.isBlank() : "Input should not be null or empty";
         String trimmedInput = input.trim();
 
         // Check for "please daddy"
