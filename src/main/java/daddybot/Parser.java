@@ -49,9 +49,9 @@ public class Parser {
                 case "list":
                     return listCommand(args, list); 
                 case "mark":
-                    return markCommand(args, list);
+                    return markCommand(args, path, list);
                 case "unmark":
-                    return unmarkCommand(args, list);
+                    return unmarkCommand(args, path, list);
                 case "delete":
                     return deleteCommand(args, path, list);
                 case "find":
@@ -147,24 +147,26 @@ public class Parser {
         return sb.toString();
     }
 
-    public static String markCommand(String args, ArrayList<Task> list) throws DaddyException {
+    public static String markCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
         if (args.isEmpty())
             return "daddy needs to know which task to mark.";
         int markIndex = Integer.parseInt(args) - 1;
         if (markIndex < 0 || markIndex >= list.size())
             return "daddy could not find that task.";
         list.get(markIndex).mark();
+        Storage.saveAll(path, list);
         return "daddy is proud of you!\n" + list.get(markIndex).getStatusIcon() + " "
                 + list.get(markIndex).toString();
     }
 
-    public static String unmarkCommand(String args, ArrayList<Task> list) throws DaddyException {
+    public static String unmarkCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
         if (args.isEmpty())
             return "daddy needs to know which task to unmark.";
         int unmarkIndex = Integer.parseInt(args) - 1;
         if (unmarkIndex < 0 || unmarkIndex >= list.size())
             return "daddy could not find that task.";
         list.get(unmarkIndex).unmark();
+        Storage.saveAll(path, list);
         return "daddy is disappointed...\n" + list.get(unmarkIndex).getStatusIcon() + " "
                 + list.get(unmarkIndex).toString();
     }
@@ -191,5 +193,26 @@ public class Parser {
         if (foundCount == 1)
             sb.append("daddy couldn't find any matching tasks.");
         return sb.toString();
+    }
+
+    public static String snoozeCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
+        if (!args.contains("/by ")) {
+            return "daddy needs a /by to snooze.";
+        }
+        int taskIndex = Integer.parseInt(daddyTask(args).substring(7, 8)) - 1;
+        int days = Integer.parseInt(
+            daddyTask(args)
+                .substring(daddyTask(args).indexOf("/by") + 3)
+                .replace(" days", "")
+                .trim()
+        );
+        try {
+            list.get(taskIndex).snooze(days);
+            Storage.saveAll(path, list);
+            return "daddy snoozed it 😴\n" + list.get(taskIndex);
+        } catch (UnsupportedOperationException e) {
+            return "daddy can't snooze this kind of task.";
+        }
+        
     }
 }

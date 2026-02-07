@@ -31,6 +31,11 @@ public class Deadline extends Task {
         }
     }
 
+    @Override
+    public void snooze(int days) {
+        this.by = this.by.plusDays(days);
+    }
+
     /**
      * Gets the due date of the deadline task.
      *
