@@ -30,6 +30,7 @@ public class TaskList {
      * @param size the new size of the list.
      */
     public static String addTask(Task task, int size) {
+        Storage.writeToFile(System.getProperty("user.dir") + "/data/daddyslist.txt", task);
         return "daddy added: " + task.toString() + "\ntotal tasks: " + size;
     }
 

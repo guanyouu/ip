@@ -2,7 +2,7 @@ package daddybot;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import daddybot.Storage;
+
 import daddybot.task.Deadline;
 import daddybot.task.Event;
 import daddybot.task.Task;
@@ -21,7 +21,8 @@ public class Parser {
         if (input == null || input.isBlank()) {
             return "daddy doesn't understand an empty command.";
         }
-
+        // We assume input is not null or blank
+        assert input != null && !input.isBlank() : "Input should not be null or empty";
         String trimmedInput = input.trim();
 
         // Check for "please daddy"
@@ -45,6 +46,7 @@ public class Parser {
                         return "daddy can't add an empty todo.";
                     }
                     Todo todo = new Todo(args);
+                    assert !todo.getDesc().isEmpty() : "Todo description must not be empty";
                     Storage.writeToFile(path + "/data/daddyslist.txt", todo);
                     return write(todo, list);
 
@@ -89,6 +91,8 @@ public class Parser {
                     int markIndex = Integer.parseInt(args) - 1;
                     if (markIndex < 0 || markIndex >= list.size())
                         return "daddy could not find that task.";
+                    assert markIndex >= 0 && markIndex < list.size() : "markIndex out of bounds: " + markIndex;
+
                     list.get(markIndex).mark();
                     return "daddy is proud of you!\n" + list.get(markIndex).getStatusIcon() + " "
                             + list.get(markIndex).toString();

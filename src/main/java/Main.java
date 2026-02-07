@@ -22,8 +22,10 @@ public class Main extends Application {
             stage.setScene(scene);
             fxmlLoader.<MainWindow>getController().setDaddy(daddy);
             stage.show();
+            
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 }
