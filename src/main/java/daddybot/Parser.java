@@ -16,7 +16,6 @@ public class Parser {
      */
     public static String parse(String input, ArrayList<Task> list) {
         String path = System.getProperty("user.dir");
-        StringBuilder sb = new StringBuilder();
 
         if (input == null || input.isBlank()) {
             return "daddy doesn't understand an empty command.";
@@ -42,92 +41,21 @@ public class Parser {
         try {
             switch (command) {
                 case "todo":
-                    if (args.isEmpty()) {
-                        return "daddy can't add an empty todo.";
-                    }
-                    Todo todo = new Todo(args);
-                    assert !todo.getDesc().isEmpty() : "Todo description must not be empty";
-                    Storage.writeToFile(path + "/data/daddyslist.txt", todo);
-                    return write(todo, list);
-
+                    return todoCommand(args, path, list);
                 case "deadline":
-                    if (!args.contains("/by ")) {
-                        return "daddy needs a /by to know the deadline.";
-                    }
-                    int byIndex = args.indexOf("/by ");
-                    String desc = args.substring(0, byIndex).trim();
-                    String byStr = args.substring(byIndex + 4).trim();
-                    LocalDate byDate = LocalDate.parse(byStr);
-                    Deadline deadline = new Deadline(desc, byDate);
-                    Storage.writeToFile(path + "/data/daddyslist.txt", deadline);
-                    return write(deadline, list);
-
+                    return deadlineCommand(args, path, list);  
                 case "event":
-                    if (!args.contains("/from ") || !args.contains("/to ")) {
-                        return "daddy needs both /from and /to to know the event time.";
-                    }
-                    int fromIndex = args.indexOf("/from ");
-                    int toIndex = args.indexOf("/to ");
-                    String eventDesc = args.substring(0, fromIndex).trim();
-                    LocalDate fromDate = LocalDate.parse(args.substring(fromIndex + 6, toIndex).trim());
-                    LocalDate toDate = LocalDate.parse(args.substring(toIndex + 4).trim());
-                    Event event = new Event(eventDesc, fromDate, toDate);
-                    Storage.writeToFile(path + "/data/daddyslist.txt", event);
-                    return write(event, list);
-
+                    return eventCommand(args, path, list);
                 case "list":
-                    if (list.isEmpty()) {
-                        return "list is empty.";
-                    }
-                    int count = 1;
-                    for (Task t : list) {
-                        sb.append(count++).append(". ").append(t.toString()).append("\n");
-                    }
-                    return sb.toString();
-
+                    return listCommand(args, list); 
                 case "mark":
-                    if (args.isEmpty())
-                        return "daddy needs to know which task to mark.";
-                    int markIndex = Integer.parseInt(args) - 1;
-                    if (markIndex < 0 || markIndex >= list.size())
-                        return "daddy could not find that task.";
-                    assert markIndex >= 0 && markIndex < list.size() : "markIndex out of bounds: " + markIndex;
-
-                    list.get(markIndex).mark();
-                    return "daddy is proud of you!\n" + list.get(markIndex).getStatusIcon() + " "
-                            + list.get(markIndex).toString();
-
+                    return markCommand(args, list);
                 case "unmark":
-                    if (args.isEmpty())
-                        return "daddy needs to know which task to unmark.";
-                    int unmarkIndex = Integer.parseInt(args) - 1;
-                    if (unmarkIndex < 0 || unmarkIndex >= list.size())
-                        return "daddy could not find that task.";
-                    list.get(unmarkIndex).unmark();
-                    return "daddy is disappointed...\n" + list.get(unmarkIndex).getStatusIcon() + " "
-                            + list.get(unmarkIndex).toString();
-
+                    return unmarkCommand(args, list);
                 case "delete":
-                    if (args.isEmpty())
-                        return "daddy needs to know which task to delete.";
-                    int deleteIndex = Integer.parseInt(args) - 1;
-                    if (deleteIndex < 0 || deleteIndex >= list.size())
-                        return "daddy could not find that task.";
-                    return TaskList.deleteTask(list.get(deleteIndex), list, deleteIndex, path);
-
+                    return deleteCommand(args, path, list);
                 case "find":
-                    if (args.isEmpty())
-                        return "daddy needs a keyword to find.";
-                    int foundCount = 1;
-                    for (Task t : list) {
-                        if (t.getDesc().contains(args)) {
-                            sb.append(foundCount++).append(". ").append(t.toString()).append("\n");
-                        }
-                    }
-                    if (foundCount == 1)
-                        sb.append("daddy couldn't find any matching tasks.");
-                    return sb.toString();
-
+                    return findCommand(args, list);
                 default:
                     return "daddy doesn't understand that command.";
             }
@@ -168,5 +96,100 @@ public class Parser {
         }
         list.add(task);
         return TaskList.addTask(task, list.size());
+    }
+
+    public static String todoCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
+        if (args.isEmpty()) {
+            return "daddy can't add an empty todo.";
+        }
+        Todo todo = new Todo(args);
+        Storage.writeToFile(path + "/data/daddyslist.txt", todo);
+        return write(todo, list);
+    }
+
+    public static String deadlineCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
+        if (!args.contains("/by ")) {
+            return "daddy needs a /by to know the deadline.";
+        }
+        int byIndex = args.indexOf("/by ");
+        String desc = args.substring(0, byIndex).trim();
+        String byStr = args.substring(byIndex + 4).trim();
+        LocalDate byDate = LocalDate.parse(byStr);
+        Deadline deadline = new Deadline(desc, byDate);
+        Storage.writeToFile(path + "/data/daddyslist.txt", deadline);
+        return write(deadline, list);
+
+    }
+
+    public static String eventCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
+        if (!args.contains("/from ") || !args.contains("/to ")) {
+            return "daddy needs both /from and /to to know the event time.";
+        }
+        int fromIndex = args.indexOf("/from ");
+        int toIndex = args.indexOf("/to ");
+        String eventDesc = args.substring(0, fromIndex).trim();
+        LocalDate fromDate = LocalDate.parse(args.substring(fromIndex + 6, toIndex).trim());
+        LocalDate toDate = LocalDate.parse(args.substring(toIndex + 4).trim());
+        Event event = new Event(eventDesc, fromDate, toDate);
+        Storage.writeToFile(path + "/data/daddyslist.txt", event);
+        return write(event, list);
+    }
+
+    public static String listCommand(String args, ArrayList<Task> list) throws DaddyException {
+        if (list.isEmpty()) {
+            return "list is empty.";
+        }
+        StringBuilder sb = new StringBuilder();
+        int count = 1;
+        for (Task t : list) {
+            sb.append(count++).append(". ").append(t.toString()).append("\n");
+        }
+        return sb.toString();
+    }
+
+    public static String markCommand(String args, ArrayList<Task> list) throws DaddyException {
+        if (args.isEmpty())
+            return "daddy needs to know which task to mark.";
+        int markIndex = Integer.parseInt(args) - 1;
+        if (markIndex < 0 || markIndex >= list.size())
+            return "daddy could not find that task.";
+        list.get(markIndex).mark();
+        return "daddy is proud of you!\n" + list.get(markIndex).getStatusIcon() + " "
+                + list.get(markIndex).toString();
+    }
+
+    public static String unmarkCommand(String args, ArrayList<Task> list) throws DaddyException {
+        if (args.isEmpty())
+            return "daddy needs to know which task to unmark.";
+        int unmarkIndex = Integer.parseInt(args) - 1;
+        if (unmarkIndex < 0 || unmarkIndex >= list.size())
+            return "daddy could not find that task.";
+        list.get(unmarkIndex).unmark();
+        return "daddy is disappointed...\n" + list.get(unmarkIndex).getStatusIcon() + " "
+                + list.get(unmarkIndex).toString();
+    }
+
+    public static String deleteCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
+        if (args.isEmpty())
+            return "daddy needs to know which task to delete.";
+        int deleteIndex = Integer.parseInt(args) - 1;
+        if (deleteIndex < 0 || deleteIndex >= list.size())
+            return "daddy could not find that task.";
+        return TaskList.deleteTask(list.get(deleteIndex), list, deleteIndex, path);
+    }
+
+    public static String findCommand(String args, ArrayList<Task> list) throws DaddyException {
+        if (args.isEmpty())
+            return "daddy needs a keyword to find.";
+        StringBuilder sb = new StringBuilder();
+        int foundCount = 1;
+        for (Task t : list) {
+            if (t.getDesc().contains(args)) {
+                sb.append(foundCount++).append(". ").append(t.toString()).append("\n");
+            }
+        }
+        if (foundCount == 1)
+            sb.append("daddy couldn't find any matching tasks.");
+        return sb.toString();
     }
 }
