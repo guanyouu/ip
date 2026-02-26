@@ -1,7 +1,5 @@
 package daddybot.task;
 
-import java.time.LocalDate;
-
 /**
  * Represents a general task with a description and completion status.
  */
@@ -19,7 +17,6 @@ public class Task {
      *
      * @return The description of the task.
      */
-
     public String getDesc() {
         return this.desc;
     }
@@ -28,8 +25,7 @@ public class Task {
      * Gets the status icon representing whether the task is done.
      *
      * @return A string representing the status icon.
-     */ 
-
+     */
     public String getStatusIcon() {
         return (isDone ? "[X]" : "[ ]");
     }
@@ -46,5 +42,16 @@ public class Task {
      */
     public void unmark() {
         this.isDone = false;
+    }
+
+    /**
+     * Snoozes the task by the given number of days.
+     * Subclasses with a date field (e.g. Deadline) should override this.
+     * 
+     * @param days Number of days to snooze by.
+     * @throws UnsupportedOperationException if the task type cannot be snoozed.
+     */
+    public void snooze(int days) {
+        throw new UnsupportedOperationException("This task type cannot be snoozed.");
     }
 }

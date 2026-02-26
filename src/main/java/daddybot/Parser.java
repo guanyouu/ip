@@ -2,6 +2,7 @@ package daddybot;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import daddybot.task.Deadline;
 import daddybot.task.Event;
@@ -9,33 +10,34 @@ import daddybot.task.Task;
 import daddybot.task.Todo;
 
 public class Parser {
-    private static int magicWordCount = 0;
+    private static final String MAGIC_WORD = "please daddy";
+    private static final int MAGIC_WORD_LENGTH = MAGIC_WORD.length();
+
+    // Instance variable instead of static — each session has its own count
+    private int magicWordCount = 0;
 
     /**
      * Parses user input and executes commands.
      */
-    public static String parse(String input, ArrayList<Task> list) {
+    public String parse(String input, ArrayList<Task> list) {
         String path = System.getProperty("user.dir");
 
         if (input == null || input.isBlank()) {
             return "daddy doesn't understand an empty command.";
         }
-        // We assume input is not null or blank
+
         assert input != null && !input.isBlank() : "Input should not be null or empty";
         String trimmedInput = input.trim();
 
-        // Check for "please daddy"
         if (!checkDaddy(trimmedInput)) {
             magicWordCount++;
             return hasNoMagicWords(magicWordCount % 5);
         }
 
-        // Remove "please daddy"
-        String userCommand = daddyTask(trimmedInput).trim();
+        String userCommand = removeMagicWord(trimmedInput).trim();
 
-        // Split command and arguments
-        String[] parts = userCommand.split("\\s+", 2); // [command, args]
-        String command = parts[0].toLowerCase();
+        String[] parts = userCommand.split("\\s+", 2);
+        String command = parts[0].toLowerCase(Locale.ROOT);
         String args = parts.length > 1 ? parts[1].trim() : "";
 
         try {
@@ -43,11 +45,11 @@ public class Parser {
                 case "todo":
                     return todoCommand(args, path, list);
                 case "deadline":
-                    return deadlineCommand(args, path, list);  
+                    return deadlineCommand(args, path, list);
                 case "event":
                     return eventCommand(args, path, list);
                 case "list":
-                    return listCommand(args, list); 
+                    return listCommand(args, list);
                 case "mark":
                     return markCommand(args, path, list);
                 case "unmark":
@@ -56,6 +58,8 @@ public class Parser {
                     return deleteCommand(args, path, list);
                 case "find":
                     return findCommand(args, list);
+                case "snooze":
+                    return snoozeCommand(args, path, list);
                 default:
                     return "daddy doesn't understand that command.";
             }
@@ -66,15 +70,22 @@ public class Parser {
         }
     }
 
-    public static Boolean checkDaddy(String input) {
-        return input.toLowerCase().endsWith("please daddy");
+    // Private — implementation detail of parse()
+    private boolean checkDaddy(String input) {
+        return input.toLowerCase(Locale.ROOT).endsWith(MAGIC_WORD);
     }
 
-    public static String daddyTask(String input) {
-        return input.substring(0, input.length() - 12);
+    // Private — implementation detail of parse()
+    private String removeMagicWord(String input) {
+        return input.substring(0, input.length() - MAGIC_WORD_LENGTH);
     }
 
-    public static String hasNoMagicWords(int num) {
+    /**
+     * Returns a response when the user forgets the magic words.
+     * Returns an empty string when magicWordCount % 5 == 0 (intentional reset
+     * behaviour).
+     */
+    private String hasNoMagicWords(int num) {
         switch (num) {
             case 1:
                 return "daddy won't do it unless you say 'please daddy'";
@@ -84,13 +95,14 @@ public class Parser {
                 return "are you forgetting something?";
             case 4:
                 return "if you continue being naughty, daddy will punish you.";
-            case 5:
+            case 0:
                 return "daddy's getting angry... one more time and daddy is going to leave.";
+            default:
+                return "daddy is displeased.";
         }
-        return "";
     }
 
-    public static String write(Task task, ArrayList<Task> list) throws DaddyException {
+    private String write(Task task, ArrayList<Task> list) throws DaddyException {
         if (task.getDesc().isEmpty()) {
             throw new DaddyException("daddy can't add an empty task.");
         }
@@ -98,7 +110,11 @@ public class Parser {
         return TaskList.addTask(task, list.size());
     }
 
-    public static String todoCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
+    // -------------------------------------------------------------------------
+    // Command handlers
+    // -------------------------------------------------------------------------
+
+    private String todoCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
         if (args.isEmpty()) {
             return "daddy can't add an empty todo.";
         }
@@ -107,7 +123,7 @@ public class Parser {
         return write(todo, list);
     }
 
-    public static String deadlineCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
+    private String deadlineCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
         if (!args.contains("/by ")) {
             return "daddy needs a /by to know the deadline.";
         }
@@ -118,10 +134,9 @@ public class Parser {
         Deadline deadline = new Deadline(desc, byDate);
         Storage.writeToFile(path + "/data/daddyslist.txt", deadline);
         return write(deadline, list);
-
     }
 
-    public static String eventCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
+    private String eventCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
         if (!args.contains("/from ") || !args.contains("/to ")) {
             return "daddy needs both /from and /to to know the event time.";
         }
@@ -135,7 +150,7 @@ public class Parser {
         return write(event, list);
     }
 
-    public static String listCommand(String args, ArrayList<Task> list) throws DaddyException {
+    private String listCommand(String args, ArrayList<Task> list) {
         if (list.isEmpty()) {
             return "list is empty.";
         }
@@ -147,42 +162,64 @@ public class Parser {
         return sb.toString();
     }
 
-    public static String markCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
-        if (args.isEmpty())
+    private String markCommand(String args, String path, ArrayList<Task> list) {
+        if (args.isEmpty()) {
             return "daddy needs to know which task to mark.";
-        int markIndex = Integer.parseInt(args) - 1;
-        if (markIndex < 0 || markIndex >= list.size())
+        }
+        int markIndex;
+        try {
+            markIndex = Integer.parseInt(args) - 1;
+        } catch (NumberFormatException e) {
+            return "daddy needs a valid task number.";
+        }
+        if (markIndex < 0 || markIndex >= list.size()) {
             return "daddy could not find that task.";
+        }
         list.get(markIndex).mark();
         Storage.saveAll(path, list);
-        return "daddy is proud of you!\n" + list.get(markIndex).getStatusIcon() + " "
-                + list.get(markIndex).toString();
+        return "daddy is proud of you!\n" + list.get(markIndex).getStatusIcon()
+                + " " + list.get(markIndex).toString();
     }
 
-    public static String unmarkCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
-        if (args.isEmpty())
+    private String unmarkCommand(String args, String path, ArrayList<Task> list) {
+        if (args.isEmpty()) {
             return "daddy needs to know which task to unmark.";
-        int unmarkIndex = Integer.parseInt(args) - 1;
-        if (unmarkIndex < 0 || unmarkIndex >= list.size())
+        }
+        int unmarkIndex;
+        try {
+            unmarkIndex = Integer.parseInt(args) - 1;
+        } catch (NumberFormatException e) {
+            return "daddy needs a valid task number.";
+        }
+        if (unmarkIndex < 0 || unmarkIndex >= list.size()) {
             return "daddy could not find that task.";
+        }
         list.get(unmarkIndex).unmark();
         Storage.saveAll(path, list);
-        return "daddy is disappointed...\n" + list.get(unmarkIndex).getStatusIcon() + " "
-                + list.get(unmarkIndex).toString();
+        return "daddy is disappointed...\n" + list.get(unmarkIndex).getStatusIcon()
+                + " " + list.get(unmarkIndex).toString();
     }
 
-    public static String deleteCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
-        if (args.isEmpty())
+    private String deleteCommand(String args, String path, ArrayList<Task> list) {
+        if (args.isEmpty()) {
             return "daddy needs to know which task to delete.";
-        int deleteIndex = Integer.parseInt(args) - 1;
-        if (deleteIndex < 0 || deleteIndex >= list.size())
+        }
+        int deleteIndex;
+        try {
+            deleteIndex = Integer.parseInt(args) - 1;
+        } catch (NumberFormatException e) {
+            return "daddy needs a valid task number.";
+        }
+        if (deleteIndex < 0 || deleteIndex >= list.size()) {
             return "daddy could not find that task.";
+        }
         return TaskList.deleteTask(list.get(deleteIndex), list, deleteIndex, path);
     }
 
-    public static String findCommand(String args, ArrayList<Task> list) throws DaddyException {
-        if (args.isEmpty())
+    private String findCommand(String args, ArrayList<Task> list) {
+        if (args.isEmpty()) {
             return "daddy needs a keyword to find.";
+        }
         StringBuilder sb = new StringBuilder();
         int foundCount = 1;
         for (Task t : list) {
@@ -190,29 +227,45 @@ public class Parser {
                 sb.append(foundCount++).append(". ").append(t.toString()).append("\n");
             }
         }
-        if (foundCount == 1)
+        if (foundCount == 1) {
             sb.append("daddy couldn't find any matching tasks.");
+        }
         return sb.toString();
     }
 
-    public static String snoozeCommand(String args, String path, ArrayList<Task> list) throws DaddyException {
+    private String snoozeCommand(String args, String path, ArrayList<Task> list) {
+        // Expected format: "<taskNumber> /by <days> days"
+        // e.g. "2 /by 3 days"
         if (!args.contains("/by ")) {
-            return "daddy needs a /by to snooze.";
+            return "daddy needs a /by to snooze. Usage: snooze <number> /by <days> days please daddy";
         }
-        int taskIndex = Integer.parseInt(daddyTask(args).substring(7, 8)) - 1;
-        int days = Integer.parseInt(
-            daddyTask(args)
-                .substring(daddyTask(args).indexOf("/by") + 3)
-                .replace(" days", "")
-                .trim()
-        );
+
+        String[] snoozeParts = args.split("/by ", 2);
+
+        int taskIndex;
+        try {
+            taskIndex = Integer.parseInt(snoozeParts[0].trim()) - 1;
+        } catch (NumberFormatException e) {
+            return "daddy needs a valid task number to snooze.";
+        }
+
+        int days;
+        try {
+            days = Integer.parseInt(snoozeParts[1].replace("days", "").trim());
+        } catch (NumberFormatException e) {
+            return "daddy needs a valid number of days to snooze by.";
+        }
+
+        if (taskIndex < 0 || taskIndex >= list.size()) {
+            return "daddy could not find that task.";
+        }
+
         try {
             list.get(taskIndex).snooze(days);
             Storage.saveAll(path, list);
-            return "daddy snoozed it 😴\n" + list.get(taskIndex);
+            return "daddy snoozed it \uD83D\uDE34\n" + list.get(taskIndex);
         } catch (UnsupportedOperationException e) {
             return "daddy can't snooze this kind of task.";
         }
-        
     }
 }

@@ -3,7 +3,6 @@ package daddybot;
 import java.util.ArrayList;
 import daddybot.task.Task;
 
-
 /**
  * TaskList class to manage the list of tasks.
  */
@@ -16,7 +15,7 @@ public class TaskList {
 
     /**
      * Gets the list of tasks.
-     * 
+     *
      * @return ArrayList of tasks.
      */
     public ArrayList<Task> getList() {
@@ -24,19 +23,19 @@ public class TaskList {
     }
 
     /**
-     * Adds a task to the list.
-     * 
-     * @param task the task to be added.
+     * Confirms a task was added and returns a response string.
+     * NOTE: Storage writing is handled by the caller (Parser) — do not write here.
+     *
+     * @param task the task that was added.
      * @param size the new size of the list.
      */
     public static String addTask(Task task, int size) {
-        Storage.writeToFile(System.getProperty("user.dir") + "/data/daddyslist.txt", task);
         return "daddy added: " + task.toString() + "\ntotal tasks: " + size;
     }
 
     /**
-     * Deletes a task from the list.
-     * 
+     * Deletes a task from the list and rebuilds the storage file.
+     *
      * @param task  the task to be deleted.
      * @param list  the list of tasks.
      * @param index the index of the task to be deleted.
@@ -45,9 +44,7 @@ public class TaskList {
     public static String deleteTask(Task task, ArrayList<Task> list, int index, String path) {
         Task removedTask = list.get(index);
         list.remove(index);
-        Storage.deleteFile(path + "/data/daddyslist.txt");
-        Storage.createFile(path);
-        Storage.addFromFile(list, path);
+        Storage.saveAll(path, list);
         return "daddy removed: '" + removedTask.getDesc() + "'\ntotal tasks: " + list.size();
     }
 }
