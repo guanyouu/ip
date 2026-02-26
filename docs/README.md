@@ -1,30 +1,40 @@
-# Duke User Guide
+# DaddyBot User Guide
 
-// Update the title above to match the actual product name
+![alt text]https://guanyouu.github.io/ip/Ui.png
 
-// Product screenshot goes here
-
-// Product intro goes here
+Let Daddy help you with your tasks
 
 ## Adding deadlines
 
-// Describe the action and its outcome.
+You can add 3 types of tasks: Todo, Deadline and Event.
 
-// Give examples of usage
+Todo:
 
-Example: `keyword (optional arguments)`
+Example: `todo (optional arguments) please daddy`
 
-// A description of the expected outcome goes here
+Deadline:
 
-```
-expected output
-```
+Example: `deadline (optional arguments) /by (date) please daddy`
 
-## Feature ABC
+Event:
 
-// Feature details
+Example: `event (optional arguments) /from (date) /to (date) please daddy`
 
+## List
 
-## Feature XYZ
+Check the list of tasks:
 
-// Feature details
+Example: `list please daddy`
+
+## Mark / Unmark tasks
+
+Mark or unmark tasks:
+
+Example: `mark (task number) please daddy`
+
+## Snooze tasks
+
+Snooze tasks by xx days:
+
+Example: `snooze (task number) /by (days) please daddy`
+
